@@ -1,0 +1,38 @@
+#!bash
+# vim:ff=unix:enc=utf8:ts=3:sw=3:et
+
+# src2pkg-ng - package creation toolkit
+# Copyright (C) 2005-2009 Gilbert Ashley
+# Copyright (C) 2009 Timothy Goya
+
+# src2pkg-ng is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2 as 
+# published by the Free Software Foundation
+
+# src2pkg-ng is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with src2pkg-ng.  If not, see <http://www.gnu.org/licenses/>.
+
+set_pkg_policy_LSB() {
+   BIN_DIR="$PRE_FIX/bin"
+   SBIN_DIR="$PRE_FIX/sbin"
+   LIBEXEC_DIR="$PRE_FIX/libexec"
+   SYSCONF_DIR="etc"
+   SHAREDSTATE_DIR="var/log"
+   LOCALSTATE_DIR="var"
+   LIB_DIR="$PRE_FIX/lib$LIBSUFFIX"
+   INCLUDE_DIR="$PRE_FIX/include"
+   DATA_DIR="$PRE_FIX/share"
+   LOCALE_DIR="$DATA_DIR/locale"
+   GAMESBIN_DIR="$PRE_FIX/games/bin"
+   GAMESDATA_DIR="$DATA_DIR/games"
+   DOC_DIR="$DATA_DIR/doc/$NAME-$VERSION"
+   MAN_DIR="$DATA_DIR/man"
+   INFO_DIR="$DATA_DIR/info"
+   PIXMAPS_DIR="$DATA_DIR/share/pixmaps"
+   ICONS_DIR="$DATA_DIR/share/icons"
+}

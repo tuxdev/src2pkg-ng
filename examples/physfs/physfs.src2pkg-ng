@@ -1,0 +1,28 @@
+#!/usr/bin/env src2pkg-ng
+
+NAME="physfs"
+VERSION="2.0.0"
+BUILD="1"
+
+BRIEF="Virtual file system for games"
+DESC="PhysicsFS is a library to provide abstract access to various archives. It is intended for use in video games, and the design was somewhat inspired by Quake 3's file subsystem."
+HOMEPAGE="http://icculus.org/physfs/"
+
+fetch_src "http://icculus.org/physfs/downloads/physfs-$VERSION.tar.gz"
+SRC="$RET_SOURCE"
+check_md5sum "$RET_SOURCE" "cfc53e0c193914c9c5ab522e58737373"
+
+make_dir src
+SRC_DIR="$RET_DIR"
+unpack_archive "$SRC" "$SRC_DIR"
+fixup_src "$SRC_DIR"
+
+configure_src auto "$SRC_DIR"
+compile_src auto "$SRC_DIR"
+make_dir pkg
+PKG_DIR="$RET_DIR"
+safe_install auto "$SRC_DIR" "$PKG_DIR"
+install_extra "$SRC_DIR" "$PKG_DIR"
+
+fixup_pkg "$PKG_DIR"
+make_pkg "$PKG_DIR"

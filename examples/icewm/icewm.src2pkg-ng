@@ -1,0 +1,32 @@
+#!/usr/bin/env src2pkg-ng
+
+NAME="icewm"
+VERSION="1.3.5"
+BUILD="1"
+
+BRIEF="Fast and small X11 window manager"
+DESC="A lightweight window manager for the X Window System. Optimized for \"feel\" and speed, not looks. Features multiple workspaces, opaque move/resize, task bar, window list, clock, mailbox, CPU, Network, APM status."
+HOMEPAGE="http://www.icewm.org/"
+
+fetch_resources "file://scripts/icewm"
+fetch_src "http://downloads.sourceforge.net/icewm/icewm-$VERSION.tar.gz"
+SRC="$RET_SOURCE"
+check_md5sum "$RET_SOURCE" "ab0993ad222b84cb42a78c97ea065eec"
+
+make_dir src
+SRC_DIR="$RET_DIR"
+unpack_archive "$SRC" "$SRC_DIR"
+fixup_src "$SRC_DIR"
+
+configure_src auto "$SRC_DIR"
+compile_src auto "$SRC_DIR"
+make_dir pkg
+PKG_DIR="$RET_DIR"
+safe_install auto "$SRC_DIR" "$PKG_DIR" install install-docs install-man
+install_extra "$SRC_DIR" "$PKG_DIR"
+mkdir -p "$PKG_DIR/etc"
+cp -r "$SOURCES_DIR/icewm" "$PKG_DIR/etc"
+chmod +x "$PKG_DIR/etc/icewm/startup"
+
+fixup_pkg "$PKG_DIR"
+make_pkg "$PKG_DIR"

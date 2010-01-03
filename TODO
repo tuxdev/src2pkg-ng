@@ -1,0 +1,6 @@
+Figure out a saner way to detect architecture and set flags given different PKG_STYLE
+Make VERBOSITY actually mean something about the amount of informational output
+Turn some warnings into fatal errors when PKG_STYLE is not "local"
+Support creating RPMSs
+Support install scripts and other precompiled sources
+Get volunteers for maintaining non-Slackware package formats

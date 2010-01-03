@@ -1,0 +1,28 @@
+#!/usr/bin/env src2pkg-ng
+
+NAME="lyx"
+VERSION="1.6.4"
+BUILD="1"
+
+BRIEF="LaTeX graphical interface"
+DESC="LyX is a document processor that encourages an approach to writing based on the structure of your documents (WYSIWYM) and not simply their appearance (WYSIWYG)."
+HOMEPAGE="http://www.lyx.org/"
+
+fetch_src "ftp://ftp.lyx.org/pub/lyx/stable/${VERSION%.*}.x/lyx-$VERSION.tar.bz2"
+SRC="$RET_SOURCE"
+check_md5sum "$RET_SOURCE" "3dd759f91acd7765c304336c51aa3a2a"
+
+make_dir src
+SRC_DIR="$RET_DIR"
+unpack_archive "$SRC" "$SRC_DIR"
+fixup_src "$SRC_DIR"
+
+configure_src auto "$SRC_DIR"
+compile_src auto "$SRC_DIR"
+make_dir pkg
+PKG_DIR="$RET_DIR"
+safe_install auto "$SRC_DIR" "$PKG_DIR"
+install_extra "$SRC_DIR" "$PKG_DIR"
+
+fixup_pkg "$PKG_DIR"
+make_pkg "$PKG_DIR"

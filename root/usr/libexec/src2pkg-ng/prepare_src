@@ -1,0 +1,390 @@
+#!bash
+# vim:ff=unix:enc=utf8:ts=3:sw=3:et
+
+# src2pkg-ng - package creation toolkit
+# Copyright (C) 2005-2009 Gilbert Ashley
+# Copyright (C) 2009 Timothy Goya
+
+# src2pkg-ng is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2 as 
+# published by the Free Software Foundation
+
+# src2pkg-ng is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with src2pkg-ng.  If not, see <http://www.gnu.org/licenses/>.
+
+{
+   shopt -s nullglob
+   declare handler=""
+   for handler in "$SRC2PKG_NG_DIR/download"/* "$SRC2PKG_NG_DIR/repo"/* ; do
+      source "$handler"
+   done
+   shopt -u nullglob
+}
+
+make_dir() {
+   declare tag="$1"
+   if [[ ! "$BUILDS_DIR" || "$BUILDS_DIR" = "/" ]] ; then
+      tprintf $"@error{Error!}: BUILDS_DIR not valid\n"
+      cleanup 1
+   fi
+   declare dir="$BUILDS_DIR/$NAME-$VERSION-$tag-$BUILD"
+   if [[ -e "$dir" ]] ; then
+      tprintf $"@summary{Removing existing} %s\n" "${dir##*/}"
+      rm -rf "$dir"
+   fi
+   tprintf $"@summary{Creating working directory} %s\n" "${dir##*/}"
+   mkdir -p "$dir"
+   add_cleanup_cmd 2 "rm -rf \"$dir\""
+   RET_DIR="$dir"
+}
+
+fetch_src() {
+   declare url="$1"
+   declare dir="${2:-"."}"
+   declare src_name="${url##*/}"
+   declare src="$SOURCES_DIR/$dir/$src_name"
+   if [[ -L "$src" ]] ; then
+      src="$(readlink -f "$src")"
+      tprintf $"@summary{Found symlink to source}: %s\n" "$src"
+   elif [[ -e "$src" ]] ; then
+      tprintf $"@summary{Found source}: %s\n" "$src"
+   else
+      tprintf $"@summary{Downloading from}: %s\n" "$url"
+      mkdir -p "$SOURCES_DIR/$dir"
+      declare protocol="${url%%:*}"
+      rm -f "$src.part"
+      if download_$protocol "$url" > "$src.part" ; then
+         mv -f "$src.part" "$src"
+         tprintf $"@summary{Downloaded source to}: %s\n" "$src"
+      else
+         tprintf $"@error{Error!}: Downloading %s not completed\n" "$src_name"
+         cleanup 1
+      fi
+   fi
+   RET_SOURCE="$src"
+}
+
+check_md5sum() {
+   declare file="$1"
+   declare md5sum="$2"
+   tprintf $"@summary{Checksumming %s} - " "${file##*/}"
+   if [[ "$(md5sum "$file" | cut -d ' ' -f 1)" = "$md5sum" ]] ; then
+      tprintf $"@success{Passed!}\n"
+      return 0
+   else
+      tprintf $"@error{Failed!}\n"
+      return 1
+   fi
+}
+
+fetch_resources() {
+   declare resource_url="$1"
+   fetch_src "$resource_url/manifest"
+   declare manifest="$RET_SOURCE"
+   declare md5sum=""
+   declare file=""
+   while IFS=" " read -r md5sum line ; do
+      fetch_src "$resource_url/$file" "$(dirname "$file")"
+      check_md5sum "$RET_SOURCE" "$md5sum"
+   done < "$manifest"
+}
+
+make_snapshot() {
+   declare snapshot="$1"
+   declare repo_type="$2"
+   shift 2
+   snapshot="$SOURCES_DIR/$snapshot"
+   if [[ "$(shopt -s nullglob; echo "$snapshot".*)" ]] ; then
+      snapshot=$(echo "$snapshot".*)
+      if [[ -L "$snapshot" ]] ; then
+         snapshot="$(readlink "$snapshot")"
+         tprintf $"@summary{Found symlink to snapshot}: %s\n" "$snapshot"
+      else
+         tprintf $"@summary{Found snapshot}: %s\n" "$snapshot"
+      fi
+   else
+      mkdir -p "$SOURCES_DIR"
+      make_dir checkout
+      declare checkout="$RET_DIR"
+      checkout_$repo_type "$checkout" "$@"
+      snapshot="$snapshot.tar"
+      declare compression="cat"
+      if which xz ; then
+         snapshot="$snapshot.xz"
+         compression="xz"
+      elif which lzma ; then
+         snapshot="$snapshot.lzma"
+         compression="lzma"
+      elif which bzip2 ; then
+         snapshot="$snapshot.bz2"
+         compression="bzip2"
+      elif which gzip ; then
+         snapshot="$snapshot.gz"
+         compression="gzip"
+      fi
+      tar -c --use-compress-program "$compression" -C "$checkout" -f "$snapshot" .
+      rm -rf "$checkout"
+   fi
+   RET_SNAPSHOT="$snapshot"
+}
+
+unpack_archive() {
+   declare file="$1"
+   declare dir="$2"
+   tprintf "@summary{Unpacking archive} %s - " "${file##*/}"
+   declare unpack_dir="$dir/src2pkg-ng-$(printf %0X "$(date +%s)")"
+   mkdir -p "$unpack_dir"
+   mkdir -p "$dir/metadata"
+   set +e
+   case "$file" in
+      *.rpm)
+         if ! rpm_magic "$file" ; then
+            tprintf $"@error{Failed!}\n"
+            echo $"Not an RPM package"
+            cleanup 1
+         fi
+         if (( $(rpm_major "$file") != 3 )) ; then
+            tprintf $"@error{Failed!}\n"
+            echo $"RPM package not version 3"
+            cleanup 1
+         fi
+         declare rpm_sig_index=()
+         rpm_read_index "$file" rpm_sig_index 96
+         declare md5sum="$(rpm_read_data "$file" RPM_SIG_INDEX 1004)"
+         declare file_md5sum="$(dd if="$file" bs=1 skip=$(( (RET_END_OFFSET + 7) / 8 * 8 )) 2> /dev/null | md5sum | cut -d ' ' -f 1)"
+         if [[ "$file_md5sum" != "$md5sum" ]] ; then
+            tprintf $"@error{Failed!}\n"
+            echo $"MD5 checksum incorrect"
+            cleanup 1
+         fi
+         declare rpm_header_index=()
+         rpm_read_index "$file" rpm_header_index $(( (RET_END_OFFSET + 7) / 8 * 8 ))
+         #rpm_read_data "$file" rpm_header_index 1001
+         #rpm_read_data "$file" rpm_header_index 1002
+         #rpm_read_data "$file" rpm_header_index 1004
+         #echo "${RET_ARRAY[0]}"
+         #rpm_read_data "$file" rpm_header_index 1005
+         #echo "${RET_ARRAY[0]}"
+         #rpm_read_data "$file" rpm_header_index 1014
+         #rpm_read_data "$file" rpm_header_index 1015
+         #rpm_read_data "$file" rpm_header_index 1020
+         dd if="$file" bs=1 skip=$RET_END_OFFSET 2> /dev/null | gzip -d | (cd "$unpack_dir" && cpio -idmu --no-absolute-filenames --quiet)
+         # FIXME: write out headers into metadata
+         ;;
+      *.deb)
+      if [[ "$(dd if="$file" bs=4 count=14 2> /dev/null)" != $'!<arch>\ndebian' ]] ; then
+            tprintf $"@error{Failed!}\n"
+            echo $"Not a Debian package"
+            cleanup 1
+         fi
+         if [[ "$(ar p "$file" "debian-binary")" != "2.0" ]] ; then
+            tprintf $"@error{Failed!}\n"
+            echo $"Debian package not version 2"
+            cleanup 1
+         fi
+         printf "2.0\n" > "$dir/metadata/debian-binary"
+         mkdir "$dir/metadata/control"
+         ar p "$file" control.tar.gz | tar -x -z -C "$dir/metadata/control"
+         if ar t "$file" data.tar > /dev/null 2>&1 ; then
+            ar p "$file" data.tar | tar -x -C "$unpack_dir"
+         elif ar t "$file" data.tar.gz > /dev/null 2>&1 ; then
+            ar p "$file" data.tar.gz | tar -x -z -C "$unpack_dir"
+         elif ar t "$file" data.tar.bz2 > /dev/null 2>&1 ; then
+            ar p "$file" data.tar.bz2 | tar -x -j -C "$unpack_dir"
+         elif ar t "$file" data.tar.lzma > /dev/null 2>&1 ; then
+            ar p "$file" data.tar.lzma | tar -x --use-compress-program lzma -C "$unpack_dir"
+         elif ar t "$file" data.tar.xz > /dev/null 2>&1 ; then
+            ar p "$file" data.tar.xz | tar -x --use-compress-program xz -C "$unpack_dir"
+         else
+            tprintf $"@error{Failed!}\n"
+            echo $"Cannot find data tarball in Debian package"
+            cleanup 1
+         fi
+         ;;
+      *.tar.gz | *.tgz)
+         tar -x -z -C "$unpack_dir" -f "$file" > /dev/null
+         ;;
+      *.tar.bz2 | *.tbz)
+         tar -x -j -C "$unpack_dir" -f "$file" > /dev/null
+         ;;
+      *.tar.lzma | *.tlz)
+         tar -x --use-compress-program lzma -C "$unpack_dir" -f "$file" > /dev/null
+         ;;
+      *.tar.xz | *.txz)
+         tar -x --use-compress-program xz -C "$unpack_dir" -f "$file" > /dev/null
+         ;;
+      *.tar)
+         tar -x -C "$unpack_dir" -f "$file" > /dev/null
+         ;;
+      *.zip)
+         unzip -d "$unpack_dir" "$file" > /dev/null
+         ;;
+      *)
+         tprintf $"@error{Failed!}\n"
+         echo $"Unsupported archive type"
+         cleanup 1
+         ;;
+   esac
+   declare code=$?
+   set -e
+   if (( code != 0 )) ; then
+      tprintf $"@error{Failed!}\n"
+      echo $"Archive might be defective"
+      cleanup $code
+   fi
+   shopt -s nullglob dotglob
+   if [[ -d "$unpack_dir/install" ]] ; then
+      mv "$unpack_dir/install" "$dir/metadata"
+   fi
+   declare files=("$unpack_dir"/*)
+   shopt -u nullglob dotglob
+   while (( ${#files[@]} == 1 )) && [[ -d "$files" ]]; do
+      files=("$files"/*)
+   done
+   if (( ${#files[@]} )) ; then
+      mv "${files[@]}" "$dir"
+   fi
+   rm -rf "$unpack_dir"
+   tprintf $"@success{Done}\n"
+}
+
+fixup_src() {
+   declare src_dir="$1"
+   if (( FIX_SRC_PERMS )) ; then
+      fixup_src_perms "$src_dir"
+   fi
+   if (( AUTOPATCH )) ; then
+      apply_patches "$src_dir"
+   fi
+   if (( FIX_AUTOTOOLS )) ; then
+      fixup_autotools "$src_dir"
+   fi
+}
+
+fixup_src_perms() {
+   declare src_dir="$1"
+   tprintf $"@summary{Correcting source permissions} - "
+   chown -R "$OWNER:$GROUP" "$src_dir"
+   find "$src_dir" ! -perm 755 -type d -exec chmod 755 "{}" "+"
+   find "$src_dir" ! -perm 644 -a ! -perm -100 -a -perm 400 -type f -exec chmod 644 "{}" "+"
+   find "$src_dir" ! -perm 755 -a -perm -500 -type f -exec chmod 755 "{}" "+"
+   tprintf $"@success{Done}\n"
+}
+
+apply_patches() {
+   declare src_dir="$1"
+   declare -a patches
+   if (( ${#patches[@]} )) ; then
+      tprintf $"@summary{Applying user-specified patches}\n"
+      declare patch=""
+      for patch in "${patches[@]}" ; do
+         apply_patch "$patch" "$src_dir"
+      done
+   else
+      shopt -s nullglob
+      push_back patches "$PATCH_DIR"/*.patch* "$PATCH_DIR"/*.diff* "$PATCH_DIR"/*.dpatch
+      shopt -u nullglob
+      if (( ${#patches[@]} )) ; then
+         tprintf $"@summary{Applying patches found in} %s\n" "$PATCH_DIR"
+         declare patch=""
+         for patch in "${patches[@]}" ; do
+            apply_patch "$patch" "$src_dir"
+         done
+      else
+         tprintf $"@summary{No patches found in} %s\n" "$PATCH_DIR"
+      fi
+   fi
+}
+
+apply_patch() {
+   declare patch="$1"
+   declare dir="$2"
+   if [[ "${patch:0:1}" != "/" ]] ; then
+      patch="$PATCH_DIR/$patch"
+   fi
+   tprintf "@summary{Applying} %s\n" "${patch##*/}"
+   declare level=""
+   for level in 1 0 2 3 4 5 ; do
+      IFS=$' \n\t'
+      set +e
+      case "$patch" in
+         *.diff | *.patch)
+            patch -l -d "$dir" -p$level < "$patch"
+         ;;
+         *.dpatch)
+            declare header=1
+            declare line=""
+            while read line && [[ "$line" != "@DPATCH@" ]] ; do
+               (( ++header ))
+            done < "$patch"
+            tail -n +$header "$patch" | patch -l -d "$dir"
+         ;;
+         *.gz)
+            gzip -c "$patch" | patch -l -d "$dir" -p$level
+         ;;
+         *.bz2)
+            bzip2 -c "$patch" | patch -l -d "$dir" -p$level
+         ;;
+         *.xz | *.lzma)
+            xz -c "$patch" | patch -l -d "$dir" -p$level
+         ;;
+         *)
+            tprintf $"@error{Failed!}\n"
+            echo $"Unsupported patch type"
+            return 1
+         ;;
+      esac > "$dir/current-patchlog"
+      declare code=$?
+      set -e
+      IFS=$'\n'
+      if (( code == 0 )) ; then
+         cut -f 3 -d ' ' "$dir/current-patchlog" | sort | uniq >> "$dir/$NAME-patched-files.log"
+         rm -f "$dir/current-patchlog"
+         break
+      fi
+   done
+   rm -f "$dir/current-patchlog"
+}
+
+fixup_autotools() {
+   declare src_dir="$1"
+   #find "$src_dir" -type f -name "config.guess" -exec cp -f "$SRC2PKG_NG_DIR/autotools_files/config.guess" "{}" ";"
+   #find "$src_dir" -type f -name "config.sub" -exec cp -f "$SRC2PKG_NG_DIR/autotools_files/config.sub" "{}" ";"
+   find "$src_dir" -type f -name "config.guess" -exec cp -f "/$DATA_DIR/libtool/config.guess" "{}" ";"
+   find "$src_dir" -type f -name "config.sub" -exec cp -f "/$DATA_DIR/libtool/config.sub" "{}" ";"
+   find "$src_dir" -type f -name "install-sh" -exec cp -f "/$DATA_DIR/libtool/install-sh" "{}" ";"
+   #find "$src_dir" -type f -name "ltmain.sh" -exec cp -f "/$DATA_DIR/libtool/ltmain.sh" "{}" ";"
+   declare input=""
+   for input in $(find "$src_dir" -type f -name "configure.in" -o -name "configure.ac") ; do
+      declare output="${input%.*}"
+      declare regen_dir="$(dirname "$input")"
+      declare do_regen=0
+      if [[ ! -e "$output" ]] ; then
+         do_regen=1
+      else
+         declare file=""
+         for file in "$input" $(grep -F "m4_include" "$input" | sed "s/.*\[\(.*\)\].*/\1/") ; do
+            if (cd "$regen_dir" && [[ "$file" -nt "$output" ]]) ; then
+               do_regen=1
+               break
+            fi
+         done
+      fi
+      if (( do_regen )) ; then
+         tprintf $"@notice{Notice} - configure script missing or stale in %s\n" "$regen_dir"
+         tprintf $"@summary{Regenerating config files} - "
+         if [[ -e "$regen_dir/autogen.sh" ]] ; then
+            (cd "$regen_dir" && sh autogen.sh) > /dev/null 2>&1
+         else
+            (cd "$regen_dir" && autoreconf -i -f) > /dev/null 2>&1
+            (cd "$regen_dir" && autoconf) > /dev/null 2>&1
+         fi
+         tprintf $"@success{Done}\n"
+      fi
+   done
+}

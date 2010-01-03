@@ -1,0 +1,315 @@
+#!bash
+# vim:ff=unix:enc=utf8:ts=3:sw=3:et
+
+# src2pkg-ng - package creation toolkit
+# Copyright (C) 2005-2009 Gilbert Ashley
+# Copyright (C) 2009 Timothy Goya
+
+# src2pkg-ng is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2 as 
+# published by the Free Software Foundation
+
+# src2pkg-ng is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with src2pkg-ng.  If not, see <http://www.gnu.org/licenses/>.
+
+{
+   shopt -s nullglob
+   declare handler=""
+   for handler in "$SRC2PKG_NG_DIR/pkg"/* ; do
+      source $handler
+   done
+   shopt -u nullglob
+}
+
+fixup_pkg() {
+   declare pkg_dir="$1"
+
+   if (( FIX_DOC )) ; then
+      fix_doc "$pkg_dir"
+   fi
+
+   if (( FIX_MAN )) ; then
+      fix_man "$pkg_dir"
+   fi
+
+   if (( FIX_INFO )) ; then
+      fix_info "$pkg_dir"
+   fi
+
+   if (( COMPRESS_DOCS )) ; then
+      compress_docs "$pkg_dir"
+   fi
+
+   if (( FIX_NOARCH )) ; then
+      fix_noarch "$pkg_dir"
+   fi
+   
+   if [[ "$ARCH" != "noarch" ]] && (( STRIP_ELF )) ; then
+      strip_elf "$pkg_dir"
+   fi
+
+   if (( FIX_PKG_PERMS )) ; then
+      fixup_pkg_perms "$pkg_dir"
+   fi
+}
+
+merge_dirs() {
+   declare pkg_dir="$1"
+   declare dir="$2"
+   declare merge_dir=""
+   for merge_dir in "$@" ; do
+      if [[ -L "$pkg_dir/$dir" ]] ; then
+         rm -f "$pkg_dir/$MERGE_DIR"
+      fi
+   done
+   mkdir -p "$pkg_dir/$dir"
+   declare merge_dir=""
+   for merge_dir in "$@" ; do
+      if [[ -d "$pkg_dir/$merge_dir" && "$dir" != "$merge_dir" ]] ; then
+         cp -r "$pkg_dir/$merge_dir"/* "$pkg_dir/$dir"
+         rm -rf "$pkg_dir/$merge_dir"
+      fi
+   done
+}
+
+fix_doc() {
+   declare pkg_dir="$1"
+   declare doc_dirs=()
+   push_back doc_dirs "usr/share/doc/$NAME-$VERSION"
+   push_back doc_dirs "usr/doc/$NAME-$VERSION"
+   tprintf $"@summary{Fixing doc dirs} - "
+   merge_dirs "$pkg_dir" "$DOC_DIR" "${doc_dirs[@]}"
+   tprintf $"@success{Done}\n"
+}
+
+fix_man() {
+   declare pkg_dir="$1"
+   declare man_dirs=()
+   push_back man_dirs "usr/share/man"
+   push_back man_dirs "usr/man"
+   tprintf $"@summary{Fixing man dirs} - "
+   merge_dirs "$pkg_dir" "$MAN_DIR" "${man_dirs[@]}"
+   find "$pkg_dir/$MAN_DIR" -type d -name "cat*" -depth -exec rm -rf "{}" "+"
+   tprintf $"@success{Done}\n"
+}
+
+fix_info() {
+   declare pkg_dir="$1"
+   declare info_dirs=()
+   push_back info_dirs "usr/share/info"
+   push_back info_dirs "usr/info"
+   tprintf $"@summary{Fixing info dirs} - "
+   merge_dirs "$pkg_dir" "$INFO_DIR" "${info_dirs[@]}"
+   tprintf $"@success{Done}\n"
+}
+
+compress_docs() {
+   declare pkg_dir="$1"
+   declare mans=($(find "$pkg_dir/$MAN_DIR" -type f))
+   if (( ${#mans[@]} )) ; then
+      tprintf $"@summary{Compressing man pages} - "
+      declare man=""
+      for man in "${mans[@]}" ; do
+         chmod 644 "$man"
+         case "$man" in
+            *.gz)
+               gzip -d "$man"
+               man=${man%.gz}
+            ;;
+            *.bz2)
+               bzip2 -d "$man"
+               man=${man%.bz2}
+            ;;
+            *.lzma)
+               lzma -d "$man"
+               man=${man%.lzma}
+            ;;
+            *.xz)
+               xz -d "$man"
+               man=${man%.xz}
+            ;;
+         esac
+         gzip --best "$man"
+      done
+      tprintf $"@success{Done}\n"
+   fi
+   declare infos=($(find "$pkg_dir/$INFO_DIR" -type f))
+   if (( ${#infos[@]} )) ; then
+      tprintf $"@summary{Compressing info pages} - "
+      declare info=""
+      for info in "${infos[@]}" ; do
+         chmod 644 "$info"
+         case "$info" in
+            *.gz)
+               gzip -d "$info"
+               info=${info%.gz}
+            ;;
+            *.bz2)
+               bzip2 -d "$info"
+               info=${info%.bz2}
+            ;;
+            *.lzma)
+               lzma -d "$info"
+               info=${info%.lzma}
+            ;;
+            *.xz)
+               xz -d "$INFO"
+               info=${info%.xz}
+            ;;
+         esac
+         gzip --best "$info"
+      done
+      tprintf $"@success{Done}\n"
+   fi
+}
+
+fix_noarch() {
+   declare pkg_dir="$1"
+   tprintf $"@summary{Checking if package is architecture independent} - "
+   declare noarch=1
+   declare file=""
+   for file in $(find "$pkg_dir/$BIN_DIR" -type f 2> /dev/null) $(find "$pkg_dir/$SBIN_DIR" -type f 2> /dev/null) $(find "$pkg_dir/$LIBEXEC_DIR" -type f 2> /dev/null) $(find "$pkg_dir/$LIB_DIR" -type f 2> /dev/null) $(find "$pkg_dir" -type f 2> /dev/null) ; do
+      if [[ "$(dd if="$file" bs=1 count=4 2> /dev/null)" = $'\x7FELF' ]] ; then
+         noarch=0
+         break
+      elif dd if="$file" bs=1 count=80 2> /dev/null | grep -Fq ".la - a libtool library file" ; then
+         noarch=0
+         break
+      elif [[ "$(head -n 1 "$file")" = "!<arch>" ]] ; then
+         noarch=0
+         break
+      fi
+   done
+   if (( noarch )) ; then
+      ARCH=noarch
+      echo $"it is"
+   else
+      echo $"it isn't"
+   fi
+}
+
+strip_elf() {
+   declare pkg_dir="$1"
+   tprintf $"@summary{Stripping ELF files} - "
+   declare file=""
+   for file in $(find "$pkg_dir" -type f) ; do
+      IFS=$' \n\t'
+      if [[ "$(dd if="$file" bs=1 count=4 2> /dev/null)" = $'\x7FELF' ]] ; then
+         "${STRIP_CMD[@]}" "$file"
+      elif [[ "$(head -n 1 "$file")" = "!<arch>" ]] ; then
+         "${STRIP_CMD[@]}" "$file"
+      fi
+      IFS=$'\n'
+   done
+   tprintf $"@success{Done}\n"
+}
+
+fixup_pkg_perms() {
+   declare pkg_dir="$1"
+   tprintf $"@summary{Correcting package permissions} - "
+   chown "$OWNER:$GROUP" "$pkg_dir"
+   if [[ -d "$pkg_dir/tmp" ]] ; then
+      chmod 1777 "$pkg_dir/tmp"
+   fi
+   if [[ -d "$pkg_dir/var/tmp" ]] ; then
+      chmod 1777 "$pkg_dir/var/tmp"
+   fi
+   if [[ -d "$pkg_dir/var/lock" ]] ; then
+      chmod 1777 "$pkg_dir/var/lock"
+   fi
+   if [[ -d "$pkg_dir/var/run" ]] ; then
+      chmod 775 "$pkg_dir/var/run"
+   fi
+   declare bin_dirs=()
+   push_back bin_dirs "bin"
+   push_back bin_dirs "sbin"
+   push_back bin_dirs "usr/bin"
+   push_back bin_dirs "usr/sbin"
+   push_back bin_dirs "usr/local/bin"
+   push_back bin_dirs "usr/local/sbin"
+   push_back bin_dirs "usr/X11R6/bin"
+   declare dir=""
+   for dir in "${bin_dirs[@]}" ; do
+      if [[ -d "$pkg_dir/$dir" ]] ; then
+         chown "$OWNER:$GROUP" "$pkg_dir/$dir"
+         chmod -R 755 "$pkg_dir/$dir"
+      fi
+   done
+   declare lib_dirs=()
+   push_back lib_dirs "lib"
+   push_back lib_dirs "usr/lib"
+   push_back lib_dirs "usr/local/lib"
+   push_back lib_dirs "usr/X11/lib"
+   push_back lib_dirs "opt/kde/lib"
+   declare dir=""
+   for dir in "${lib_dirs[@]}" ; do
+      if [[ -d "$pkg_dir/$dir" ]] ; then
+         chown -R "$OWNER:$GROUP" "$pkg_dir/$dir"
+         chmod 755 "$pkg_dir/$dir"
+         find "$pkg_dir/$dir" -type d -exec chown "$OWNER:$GROUP" "{}" "+"
+         find "$pkg_dir/$dir" -type d -exec chmod 755 "{}" "+"
+      fi
+   done
+   declare file=""
+   for file in $(find "$pkg_dir" -type f) ; do
+      if [[ "$(dd if="$file" bs=1 count=4 2> /dev/null)" = $'\x7FELF' ]] ; then
+         chmod 755 "$file"
+      elif dd if="$file" bs=1 count=80 2> /dev/null | grep -Fq ".la - a libtool library file" ; then
+         chmod 644 "$file"
+      elif [[ "$(head -n 1 "$file")" = "!<arch>" ]] ; then
+         chmod 644 "$file"
+      fi
+   done
+   if [[ -d "$pkg_dir/$SYSCONF_DIR" ]] ; then
+      find "$pkg_dir/$SYSCONF_DIR" -maxdepth 1 -type f -exec chmod "ogu-x" "{}" "+"
+   fi
+   if [[ -d "$pkg_dir/$DOC_DIR" ]] ; then
+      chmod 755 "$pkg_dir/$DOC_DIR"
+      find "$pkg_dir/$DOC_DIR" -type d -exec chmod 755 "{}" "+"
+      find "$pkg_dir/$DOC_DIR" -type f -exec chmod 644 "{}" "+"
+   fi
+   if [[ -d "$pkg_dir/$DATA_DIR" ]] ; then
+      chmod 755 "$pkg_dir/$DATA_DIR"
+      find "$pkg_dir/$DATA_DIR" -type d -a ! -name "$NAME" -exec chmod 755 "{}" "+"
+      if [[ -d "$pkg_dir/$DATA_DIR/applications" ]] ; then
+         chown -R "$OWNER:$GROUP" "$pkg_dir/$DATA_DIR/applications"
+         find "$pkg_dir/$DATA_DIR/applications" -type f -exec chmod 644 "{}" "+"
+      fi
+   fi
+   if [[ -d "$pkg_dir/$DATA_DIR/pixmaps" ]] ; then
+      chown -R "$OWNER:$GROUP" "$pkg_dir/$DATA_DIR/pixmaps"
+      find "$pkg_dir/$DATA_DIR/pixmaps" -type d -exec chmod 755 "{}" "+"
+      find "$pkg_dir/$DATA_DIR/pixmaps" -type f -exec chmod 644 "{}" "+"
+   fi
+   if [[ -d "$pkg_dir/$DATA_DIR/icons" ]] ; then
+      chown -R "$OWNER:$GROUP" "$pkg_dir/$DATA_DIR/icons"
+      find "$pkg_dir/$DATA_DIR/icons" -type d -exec chmod 755 "{}" "+"
+      find "$pkg_dir/$DATA_DIR/icons" -type f -exec chmod 644 "{}" "+"
+   fi
+   if [[ -d "$pkg_dir/$LIB_DIR/pkgconfig" ]] ; then
+      chown -R "$OWNER:$GROUP" "$pkg_dir/$LIB_DIR"
+      chmod 755 "$pkg_dir/$LIB_DIR"
+      chmod 755 "$pkg_dir/$LIB_DIR/pkgconfig"
+      find "$pkg_dir/$LIB_DIR/pkgconfig" -type f -exec chmod 644 "{}" "+"
+   fi
+   if [[ -d "$pkg_dir/$SYSCONF_DIR/X11/xinit" ]] ; then
+      chmod 755 "$pkg_dir/$SYSCONF_DIR/X11/xinit"/*
+   fi
+   if [[ -d "$pkg_dir/$SYSCONF_DIR/X11/app-defaults" ]] ; then
+      chmod 644 "$pkg_dir/$SYSCONF_DIR/X11/app-defaults"/*
+   fi
+   tprintf $"@success{Done}\n"
+}
+
+make_pkg() {
+   declare pkg_dir="$1"
+   declare pkg_name="${2:-$NAME}"
+   rm -rf "$pkg_dir/$HOME"
+   find "$pkg_dir" -type d -empty -depth -exec rmdir "{}" "+"
+   make_pkg_$PKG_FORMAT "$pkg_dir" "$pkg_name"
+}

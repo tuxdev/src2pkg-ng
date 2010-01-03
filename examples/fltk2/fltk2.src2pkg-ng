@@ -1,0 +1,27 @@
+#!/usr/bin/env src2pkg-ng
+
+NAME="fltk2"
+VERSION="r6921"
+BUILD="1"
+
+BRIEF="Fast Light Tool Kit"
+DESC="The Fast Light Tool Kit (\"FLTK\", pronounced \"fulltick\") is a cross-platform C++ GUI toolkit for UNIX/Linux (X11), Microsoft Windows, and MacOS X. FLTK provides modern GUI functionality without the bloat and supports 3D graphics via OpenGL and its built-in GLUT emulation."
+HOMEPAGE="www.fltk.org"
+
+make_snapshot "fltk-2.0.x-$VERSION" svn "http://svn.easysw.com/public/fltk/fltk/trunk/"
+SRC="$RET_SNAPSHOT"
+
+make_dir src
+SRC_DIR="$RET_DIR"
+unpack_archive "$SRC" "$SRC_DIR"
+fixup_src "$SRC_DIR"
+
+configure_src auto "$SRC_DIR"
+compile_src auto "$SRC_DIR"
+make_dir pkg
+PKG_DIR="$RET_DIR"
+safe_install auto "$SRC_DIR" "$PKG_DIR"
+install_extra "$SRC_DIR" "$PKG_DIR"
+
+fixup_pkg "$PKG_DIR"
+make_pkg "$PKG_DIR"

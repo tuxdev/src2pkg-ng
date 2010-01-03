@@ -1,0 +1,28 @@
+#!/usr/bin/env src2pkg-ng
+
+NAME="transmission"
+VERSION="1.76"
+BUILD="1"
+
+BRIEF="BitTorrent client"
+DESC="A fast and easy BitTorrent client."
+HOMEPAGE="http://www.transmissionbt.com/"
+
+fetch_src "http://mirrors.m0k.org/transmission/files/transmission-$VERSION.tar.xz"
+SRC="$RET_SOURCE"
+check_md5sum "$RET_SOURCE" "2927d3b4ab5ec064be0d551466479e96"
+
+make_dir src
+SRC_DIR="$RET_DIR"
+unpack_archive "$SRC" "$SRC_DIR"
+fixup_src "$SRC_DIR"
+
+configure_src auto "$SRC_DIR"
+compile_src auto "$SRC_DIR"
+make_dir pkg
+PKG_DIR="$RET_DIR"
+safe_install auto "$SRC_DIR" "$PKG_DIR"
+install_extra "$SRC_DIR" "$PKG_DIR"
+
+fixup_pkg "$PKG_DIR"
+make_pkg "$PKG_DIR"

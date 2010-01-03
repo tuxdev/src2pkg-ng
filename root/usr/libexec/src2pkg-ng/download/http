@@ -1,0 +1,81 @@
+#!bash
+# vim:ff=unix:enc=utf8:ts=3:sw=3:et
+
+# src2pkg-ng - package creation toolkit
+# Copyright (C) 2005-2009 Gilbert Ashley
+# Copyright (C) 2009 Timothy Goya
+
+# src2pkg-ng is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2 as 
+# published by the Free Software Foundation
+
+# src2pkg-ng is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with src2pkg-ng.  If not, see <http://www.gnu.org/licenses/>.
+
+download_http() {
+   declare url="$1"
+   if which wget > /dev/null 2>&1 ; then
+      wget -q -O - "$url"
+   elif which curl > /dev/null 2>&1 ; then
+      curl -s -S "$url"
+   elif which lynx > /dev/null 2>&1 ; then
+      lynx -source "$url"
+   # FIXME: Create nc and telnet downloaders
+   # FIXME: Figure out another way to determine net redirects support
+   elif cat < "/dev/tcp/time.nist.gov/13" > /dev/null 2>&1 ; then
+      connect() {
+         declare host="${url#"http://"}"
+         declare loc="/${host#*/}"
+         host="${host%%/*}"
+         declare port="${host##*:}"
+         if [[ "$port" == "$host" ]] ; then
+            port="80"
+         fi
+         host="${host%:*}"
+         eval "exec $fd<>\"/dev/tcp/\$host/\$port\""
+         echo "GET $LOC HTTP/1.1" >&$fd
+         echo "Host: $HOST" >&$fd
+         echo "" >&$fd
+         IFS=" " read -r -u $fd http_ver code reason 
+         reason=${reason%$'\r'}
+      }
+      declare fd=3
+      while [[ -L "/dev/fd/$fd" ]] ; do
+         (( ++fd ))
+      done
+      declare line=""
+      declare http_ver=""
+      declare code=""
+      declare code=""
+      connect
+      while [[ "$code" = 3* ]] ; do
+         read -r -u $fd line
+         while [[ "$line" != Location* ]] ; do
+            read -r -u $fd line
+         done
+         line="${line%$'\r'}"
+         url="${line#"Location: "}"
+         eval "exec $fd>&-"
+         connect
+      done
+      unset -f connect
+      if [[ "$code" == "200" ]] ; then
+         read -r -u $fd line 
+         while [[ "$line" != $'\r' ]] ; do
+            read -r -u $fd line
+         done
+         cat <&$fd
+         eval "exec $fd>&-"
+         return 0
+      else
+         eval "exec $fd>&-"
+         echo "$reason"
+         return 1
+      fi
+   fi
+}

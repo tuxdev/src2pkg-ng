@@ -1,0 +1,40 @@
+#!bash
+# vim:ff=unix:enc=utf8:ts=3:sw=3:et
+
+# src2pkg-ng - package creation toolkit
+# Copyright (C) 2005-2009 Gilbert Ashley
+# Copyright (C) 2009 Timothy Goya
+
+# src2pkg-ng is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2 as 
+# published by the Free Software Foundation
+
+# src2pkg-ng is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with src2pkg-ng.  If not, see <http://www.gnu.org/licenses/>.
+
+configure_cmd_script() {
+   declare config_dir="$1"
+   shift 1
+
+   RET_CMD="$@"
+}
+
+compile_cmd_script() {
+   declare config_dir="$1"
+   shift 1
+
+   RET_CMD="$@"
+}
+
+install_cmd_script() {
+   declare config_dir="$1"
+   declare pkg_dir="$2"
+   shift 2
+
+   RET_CMD="$@"
+}

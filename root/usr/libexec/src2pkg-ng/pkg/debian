@@ -1,0 +1,89 @@
+#!bash
+# vim:ff=unix:enc=utf8:ts=3:sw=3:et
+
+# src2pkg-ng - package creation toolkit
+# Copyright (C) 2005-2009 Gilbert Ashley
+# Copyright (C) 2009 Timothy Goya
+
+# src2pkg-ng is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2 as 
+# published by the Free Software Foundation
+
+# src2pkg-ng is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with src2pkg-ng.  If not, see <http://www.gnu.org/licenses/>.
+
+if [[ -z "${PKG_FORMAT:-""}" && -f "/etc/debian_version" ]] ; then
+   PKG_FORMAT="debian"
+fi
+if [[ -z "${PKG_POLICY:-""}" && "${PKG_FORMAT:-""}" == "debian" ]] ; then
+   PKG_POLICY="LSB"
+fi
+if [[ -z "${PKG_COMPRESSION:-""}" && "${PKG_FORMAT:-""}" == "debian" ]] ; then
+   PKG_COMPRESSION="gzip"
+fi
+
+make_pkg_debian() {
+   declare pkg_dir="$1"
+   declare pkg_name="$2"
+   declare ARCH
+   if [[ "$ARCH" == "noarch" ]] ; then
+      ARCH=all
+   fi
+   if [[ "$PKG_POLICY" != "LSB" ]] ; then
+      tprintf $"@warning{Warning!}: Package structure policy not 'LSB'.\n"
+      echo $"Package may not properly comply with Debian LSB conventions"
+   fi
+   printf "2.0\n" > "$pkg_dir/metadata/debian-binary"
+   mkdir -p "$pkg_dir/metadata/control"
+   (cd "$pkg_dir" && md5sum $(find * -type f)) > "$pkg_dir/metadata/control/md5sums"
+   make_debian_control "$pkg_dir" "$pkg_name" "$pkg_dir/metadata/control/control"
+   if ! tar --owner=root --group=root -c -z -C "$pkg_dir/metadata/control" -f "$pkg_dir/metadata/control.tar.gz" . ; then
+      tprintf $"@error{Error!}: Creating Debian control tarball failed\n"
+      cleanup 1
+   fi
+   declare data="$pkg_dir/data.tar"
+   if ! tar --owner=root --group=root -c -C "$pkg_dir" -f "$data" . --exclude "data.tar" --exclude "metadata" ; then
+      tprintf $"@error{Error!}: Creating Debian data tarball failed\n"
+      cleanup 1
+   fi
+   if [[ "$PKG_COMPRESSION" ]] ; then
+      $PKG_COMPRESSION "$pkg_dir/data.tar"
+      data="$data".*
+   fi
+   declare pkg="$PKG_DEST_DIR/${pkg_name}_$VERSION-${BUILD}_$ARCH.deb"
+   rm -f "$pkg"
+   ar rc "$pkg" "$pkg_dir/metadata/debian-binary" "$pkg_dir/metadata/control.tar.gz" "$data"
+   tprintf $"@summary{Package Creation} - @success{Successful!} Package location\n"
+   echo "$pkg"
+}
+
+make_debian_control() {
+   declare pkg_dir="$1"
+   declare pkg_name="$2"
+   declare control_file="$4"
+   cat > "$control_file" << EOF
+Package: $pkg_name
+Version: $VERSION-$BUILD
+Architecture: $ARCH
+Installed-Size $(du -sk "$pkg_dir" | cut -f 1)
+Maintainer: $PACKAGER
+Description: $BRIEF
+EOF
+   while [[ -z "$DESC" ]] ; do
+      declare chunk=${DESC:0:79}
+      if (( ${#CHUNK} == 79 )) ; then
+         chunk=${CHUNK% *}
+      fi
+      echo " $chunk" >> "$control_file"
+      DESC=${DESC:${#chunk}}
+      DESC=${DESC#$ *}
+   done
+   if [[ -z "$HOMEPAGE" ]] ; then
+      echo "Homepage: $HOMEPAGE" >> "$control_file"
+   fi
+}

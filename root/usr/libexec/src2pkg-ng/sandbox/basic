@@ -1,0 +1,173 @@
+#!/usr/bin/env bash
+# vim:ff=unix:enc=utf8:ts=3:sw=3:et
+
+# src2pkg-ng - package creation toolkit
+# Copyright (C) 2005-2009 Gilbert Ashley
+# Copyright (C) 2009 Timothy Goya
+
+# src2pkg-ng is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2 as 
+# published by the Free Software Foundation
+
+# src2pkg-ng is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with src2pkg-ng.  If not, see <http://www.gnu.org/licenses/>.
+
+set -e
+IFS=$'\n\t'
+umask 022
+unalias -a
+unset -f $(declare -F | sed "s/^declare -f //")
+
+while getopts :cw:r:e: OPT ; do
+   case $OPT in
+      c)
+         DO_CHECK=1
+      ;;
+      w)
+         if [[ "$WRITE_LAYER" != "" ]] ; then
+            echo $"Write layer can only be specified once" >&2
+            FAILURE=1
+         fi
+         if [[ "$OPTARG" != /* ]] ; then
+            printf $"%s is not an absolute path\n" "$OPTARG" >&2
+            FAILURE=1
+         fi
+         if [[ ! -d "$OPTARG" ]] ; then
+            printf $"%s must exist\n" "$OPTARG" >&2
+            FAILURE=1
+         fi
+         WRITE_LAYER="$OPTARG"
+      ;;
+      r)
+         if [[ "$OPTARG" != /* ]] ; then
+            printf $"%s is not an absolute path\n" "$OPTARG" >&2
+            FAILURE=1
+         fi
+         if [[ ! -d "$OPTARG" ]] ; then
+            printf $"%s must exist\n" "$OPTARG" >&2
+            FAILURE=1
+         fi
+         READ_LAYERS=("${READ_LAYERS[@]}" "$OPTARG")
+      ;;
+      e)
+         if [[ "$OPTARG" != /* ]] ; then
+            printf $"%s is not an absolute path\n" "$OPTARG" >&2
+            FAILURE=1
+         fi
+         if [[ ! -d "$OPTARG" ]] ; then
+            printf $"%s must exist\n" "$OPTARG" >&2
+            FAILURE=1
+         fi
+         EXCL_PATH=("${EXCL_PATH[@]}" "$OPTARG")
+      ;;
+      \?)
+         echo $"Error parsing command line arguments" >&2
+         FAILURE=1
+      ;;
+   esac
+done
+
+true ${TMPDIR:="/tmp"}
+if [[ "$TMPDIR" != /* ]] ; then
+   printf $"%s is not an absolute path\n" "$TMPDIR" >&2
+   FAILURE=1
+fi
+if [[ ! -d "$TMPDIR" ]] ; then
+   printf $"%s must exist\n" "$TMPDIR" >&2
+   FAILURE=1
+fi
+
+if (( DO_CHECK )) ; then
+   if (( $(id -u) != 0 )) ; then
+      echo $"Basic sandbox requires root privileges"
+      FAILURE=1
+   fi
+   if ! which fusermount > /dev/null 2>&1 ; then
+      echo $"fusermount not found"
+      FAILURE=1
+   fi
+   if ! which unionfs > /dev/null 2>&1 ; then
+      echo $"unionfs-fuse not found"
+      FAILURE=1
+   fi
+   exit ${FAILURE:-0}
+fi
+
+if (( FAILURE )) ; then
+   exit $FAILURE
+fi
+
+ROOT_DIR="$TMPDIR/sandbox-root-$(printf %0X $(date +%s))"
+EXCL_LAYER="$TMPDIR/sandbox-excl-$(printf %0X $(date +%s))"
+
+cleanup() {
+   set +e
+   for EXCL in "${EXCL_DIRS_MOUNTED[@]}" ; do
+      umount "$ROOT_DIR/$EXCL"
+   done
+
+   fusermount -u "$ROOT_DIR"
+
+   for EXCL in "${EXCL_DIRS_MADE[@]}" ; do
+      rmdir -p "$EXCL_LAYER/$EXCL" > /dev/null 2>&1
+   done
+
+   rmdir "$ROOT_DIR"
+}
+
+trap cleanup SIGINT ERR
+
+mkdir -p "$ROOT_DIR"
+mkdir -p "$EXCL_LAYER"
+
+for EXCL in "${EXCL_PATH[@]}" ; do
+   mkdir -p "$EXCL_LAYER/$EXCL"
+   EXCL_DIRS_MADE=("$EXCL" "${EXCL_DIRS_MADE[@]}")
+done
+
+if [[ "$WRITE_LAYER" ]] ; then
+   BRANCHES="$WRITE_LAYER=RW:"
+fi
+for READ in "${READ_LAYERS[@]}" ; do
+   BRANCHES="$BRANCHES$READ=RO:"
+done
+BRANCHES="$BRANCHES$EXCL_LAYER=RO"
+
+if [[ "$WRITE_LAYER" ]] ; then
+   unionfs -o cow "$BRANCHES" "$ROOT_DIR"
+else
+   unionfs "$BRANCHES" "$ROOT_DIR"
+fi
+
+for EXCL in "${EXCL_PATH[@]}" ; do
+   mount -o nosuid --bind "$EXCL" "$ROOT_DIR/$EXCL"
+   EXCL_DIRS_MOUNTED=("$EXCL" "${EXCL_DIRS_MOUNTED[@]}")
+done
+
+IFS=$' \n\t'
+set +e
+shift $(( OPTIND - 1 ))
+if [[ "$1" ]] ; then
+   (cd "$ROOT_DIR" && chroot "$ROOT_DIR" "$@")
+else
+   if [[ "$SHELL" ]] ; then
+      SHELL=/bin/sh
+   fi
+   (cd "$ROOT_DIR" && chroot "$ROOT_DIR" "$SHELL" -i)
+fi
+STATUS=$?
+set -e
+IFS=$'\n\t'
+
+cleanup
+
+if [[ "$WRITE_LAYER" ]] ; then
+   rm -rf "$WRITE_LAYER/.unionfs"
+fi
+
+exit $STATUS

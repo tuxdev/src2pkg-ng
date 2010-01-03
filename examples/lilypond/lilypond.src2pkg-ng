@@ -1,0 +1,28 @@
+#!/usr/bin/env src2pkg-ng
+
+NAME="lilypond"
+VERSION="2.12.2"
+BUILD="1"
+
+BRIEF="LilyPond music notation"
+DESC="LilyPond is an automated engraving system. It formats music beautifully and automatically, and has a friendly syntax for its input files."
+HOMEPAGE="http://lilypond.org/"
+
+fetch_src "http://download.linuxaudio.org/lilypond/sources/v${VERSION%.*}/lilypond-$VERSION.tar.gz"
+SRC="$RET_SOURCE"
+check_md5sum "$RET_SOURCE" "681dfbecf8a3710d1400cf9488be716b"
+
+make_dir src
+SRC_DIR="$RET_DIR"
+unpack_archive "$SRC" "$SRC_DIR"
+fixup_src "$SRC_DIR"
+
+configure_src auto "$SRC_DIR" --disable-debugging
+compile_src auto "$SRC_DIR"
+make_dir pkg
+PKG_DIR="$RET_DIR"
+safe_install auto "$SRC_DIR" "$PKG_DIR"
+install_extra "$SRC_DIR" "$PKG_DIR"
+
+fixup_pkg "$PKG_DIR"
+make_pkg "$PKG_DIR"

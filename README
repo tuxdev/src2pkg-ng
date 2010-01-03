@@ -1,0 +1,24 @@
+      src2pkg-ng
+      Copyright (C) 2005-2009 Gilbert Ashley <amigo@ibiblio.org>
+      Copyright (C) 2009 Timothy Goya <tuxdev103@gmail.com>
+
+   src2pkg-ng is a complete experimental redesign of the src2pkg package
+   creation tool.  The the primary difference in src2pkg-ng is the new
+   scripting API. This new API follows the same general process as the old one,
+   but is more explicit, transparent, and flexible.
+
+   src2pkg-ng is unstable and not suitable for daily use. Those using
+   src2pkg-ng must be fully prepared for the possibility that it may kill
+   puppies. The scripting API may change drastically at any time. src2pkg-ng
+   supports fewer build systems and sandboxing methods than src2pkg.
+
+   The src2pkg-ng executable behaves like a command interpreter. This command
+   interpreter does not yet support an interactive mode.  It cannot
+   automatically create a package from a tarball, you must use a src2pkg-ng
+   script. See the SCRIPTING_API file for details on the fuctions you can use
+   in a src2pkg-ng script.
+
+   In order to get vim to do pretty bash syntax coloring for src2pkg-ng
+   scripts, add these two lines to your .vimrc:
+   au BufEnter *.src2pkg-ng let is_bash=1
+   au BufEnter *.src2pkg-ng set ft=sh

@@ -1,0 +1,56 @@
+#!bash
+# vim:ff=unix:enc=utf8:ts=3:sw=3:et
+
+# src2pkg-ng - package creation toolkit
+# Copyright (C) 2005-2009 Gilbert Ashley
+# Copyright (C) 2009 Timothy Goya
+
+# src2pkg-ng is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2 as 
+# published by the Free Software Foundation
+
+# src2pkg-ng is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with src2pkg-ng.  If not, see <http://www.gnu.org/licenses/>.
+
+push_back CONFIGURE_TYPES "autotools"
+
+is_build_autotools() {
+   [[ -f "$1/configure" ]]
+}
+
+configure_cmd_autotools() {
+   declare config_dir="$1"
+   shift 1
+
+   set_pkg_policy_$PKG_POLICY
+   export bindir=/$BIN_DIR
+   export sbindir=/$SBIN_DIR
+   export libexecdir=/$LIBEXEC_DIR
+   export sysconfdir=/$SYSCONF_DIR
+   export sharedstatedir=/$SHAREDSTATE_DIR
+   export localstatedir=/$LOCALSTATE_DIR
+   export libdir=/$LIB_DIR
+   export includedir=/$INCLUDE_DIR
+   export oldincludedir=$PRE_FIX/include
+   export datarootdir=/$PRE_FIX/share
+   export datadir=/$DATA_DIR
+   export infodir=/$INFO_DIR
+   export localedir=$LOCALE_DIR
+   export mandir=/$MAN_DIR
+   export docdir=/$DOC_DIR
+   export htmldir=/$DOC_DIR/html
+   export dvidir=/$DOC_DIR
+   export pdfdir=/$DOC_DIR
+   export psidir=/$DOC_DIR
+   export gamesbindir=/$GAMESBIN_DIR
+   export gamesdatadir=/$GAMESDATA_DIR
+   export pixmapsdir=/$PIXMAPS_DIR
+   export iconsdir=/$ICONS_DIR
+
+   RET_CMD="./configure --prefix=\"/$PRE_FIX\" $@"
+}

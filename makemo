@@ -1,0 +1,8 @@
+#!/bin/bash
+# vim:ff=unix:enc=utf8:ts=3:sw=3:et
+
+rm -rf locale
+for PO in po/*.po ; do
+   mkdir -p "locale/$(basename "$PO" ".po")/LC_MESSAGES"
+   msgfmt -o "locale/$(basename "$PO" ".po")/LC_MESSAGES/src2pkg-ng.mo" "$PO"
+done

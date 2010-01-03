@@ -1,0 +1,104 @@
+#!bash
+# vim:ff=unix:enc=utf8:ts=3:sw=3:et
+
+# src2pkg-ng - package creation toolkit
+# Copyright (C) 2005-2009 Gilbert Ashley
+# Copyright (C) 2009 Timothy Goya
+
+# src2pkg-ng is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2 as 
+# published by the Free Software Foundation
+
+# src2pkg-ng is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with src2pkg-ng.  If not, see <http://www.gnu.org/licenses/>.
+
+get_color_code() {
+   declare color="$1"
+   declare code=""
+   if [[ "$color" = bold* ]] ; then
+      code="$code$(tput bold)"
+      color="${color#bold }"
+   fi
+   case $color in
+      black)
+         code="$code$(tput setaf 0)"
+         ;;
+      red)
+         code="$code$(tput setaf 1)"
+         ;;
+      green)
+         code="$code$(tput setaf 2)"
+         ;;
+      yellow)
+         code="$code$(tput setaf 3)"
+         ;;
+      blue)
+         code="$code$(tput setaf 4)"
+         ;;
+      magenta)
+         code="$code$(tput setaf 5)"
+         ;;
+      cyan)
+         code="$code$(tput setaf 6)"
+         ;;
+      white)
+         code="$code$(tput setaf 7)"
+         ;;
+   esac
+   echo "$code"
+}
+
+make_color_tag() {
+   declare tag="$1"
+   declare color="$2"
+   eval "format_$tag() { echo \"\$(get_color_code \"$color\")\$1\$(tput \"sgr0\")\"; }"
+}
+
+tprintf() {
+   declare format="$1"
+   shift 1
+   declare tag_re="@([[:alpha:]][[:alnum:]]*)\{([^\}]*)\}"
+   while [[ "$format" =~ $tag_re ]] ; do
+      declare tag="${BASH_REMATCH[1]}"
+      declare text="${BASH_REMATCH[2]}"
+      if [[ "$USE_COLORS" = "always" ]] || [[ "$USE_COLORS" = "auto" && -t 1 ]] ; then
+         format="${format/"${BASH_REMATCH[0]}"/$(format_$tag "$text")}"
+      else
+         format="${format/"${BASH_REMATCH[0]}"/$text}"
+      fi
+   done
+   printf "$format" "$@"
+}
+
+push_back() {
+   declare array_var="$1"
+   shift 1
+   set +u
+   eval "$array_var=(\"\${$array_var[@]}\" \"\$@\")"
+   set -u
+}
+
+push_front() {
+   declare array_var="$1"
+   shift 1
+   set +u
+   eval "$array_var=(\"\$@\" \"\${$array_var[@]}\")"
+   set -u
+}
+
+pop_back() {
+   declare array_var="$1"
+   shift 1
+   eval "$array_var=(\"\${$array_var:0:\$(( ${#array_var[@]} - 1 ))}\")"
+}
+
+pop_front() {
+   declare array_var="$1"
+   shift 1
+   eval "$array_var=(\"\${$array_var:1}\")"
+}

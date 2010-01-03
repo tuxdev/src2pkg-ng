@@ -1,0 +1,10 @@
+#!/bin/bash
+# vim:ff=unix:enc=utf8:ts=3:sw=3:et
+
+rm -f src2pkg-ng.pot
+for SCRIPT in root/usr/bin/src2pkg-ng root/usr/libexec/src2pkg-ng/* root/usr/libexec/src2pkg-ng/*/* ; do
+   if [[ -f "$SCRIPT" ]] ; then
+      bash --dump-po-strings "$SCRIPT" >> src2pkg-ng.pot
+   fi
+done
+msguniq src2pkg-ng.pot -o src2pkg-ng.pot

@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# vim:ff=unix:enc=utf8:ts=3:sw=3:et
+
+# src2pkg-ng - package creation toolkit
+# Copyright (C) 2005-2009 Gilbert Ashley
+# Copyright (C) 2009 Timothy Goya
+
+# src2pkg-ng is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2 as 
+# published by the Free Software Foundation
+
+# src2pkg-ng is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with src2pkg-ng.  If not, see <http://www.gnu.org/licenses/>.
+
+set -eu
+umask 022
+unalias -a
+unset -f $(declare -F | sed "s/^declare -f //")
+
+while getopts :cw:r:e: OPT; do
+   case $OPT in
+      c)
+         if (( ${WARN_DUMMY_SANDBOX:-1} )) ; then
+            echo $"Dummy sandbox is extremely dangerous, use with caution"
+         fi
+         exit 0
+      ;;
+      w)
+      ;;
+      r)
+      ;;
+      e)
+      ;;
+      \?)
+         echo $"Error parsing command line arguments" >&2
+         exit 1
+      ;;
+   esac
+done
+
+shift $(( OPTIND - 1 ))
+if [[ "$1" ]] ; then
+   "$@"
+else
+   if [[ "$SHELL" ]] ; then
+      SHELL=/bin/sh
+   fi
+   "$SHELL" -i
+fi

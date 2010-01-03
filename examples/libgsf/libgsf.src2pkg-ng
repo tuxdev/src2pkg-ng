@@ -1,0 +1,28 @@
+#!/usr/bin/env src2pkg-ng
+
+NAME="libgsf"
+VERSION="1.14.16"
+BUILD="1"
+
+BRIEF="structure file I/O library"
+DESC="libgsf aims to provide an efficient extensible I/O abstraction for dealing with different structured file formats."
+#HOMEPAGE="http://ftp.gnome.org/pub/GNOME/sources/libgsf/"
+
+fetch_src "http://ftp.gnome.org/pub/gnome/sources/libgsf/${VERSION%.*}/libgsf-$VERSION.tar.bz2"
+SRC="$RET_SOURCE"
+check_md5sum "$RET_SOURCE" "8478d83fda0b6e57f36550c11a693ee1"
+
+make_dir src
+SRC_DIR="$RET_DIR"
+unpack_archive "$SRC" "$SRC_DIR"
+fixup_src "$SRC_DIR"
+
+configure_src auto "$SRC_DIR"
+compile_src auto "$SRC_DIR"
+make_dir pkg
+PKG_DIR="$RET_DIR"
+safe_install auto "$SRC_DIR" "$PKG_DIR"
+install_extra "$SRC_DIR" "$PKG_DIR"
+
+fixup_pkg "$PKG_DIR"
+make_pkg "$PKG_DIR"

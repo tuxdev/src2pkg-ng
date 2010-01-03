@@ -1,0 +1,27 @@
+#!bash
+# vim:ff=unix:enc=utf8:ts=3:sw=3:et
+
+# src2pkg-ng - package creation toolkit
+# Copyright (C) 2005-2009 Gilbert Ashley
+# Copyright (C) 2009 Timothy Goya
+
+# src2pkg-ng is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2 as 
+# published by the Free Software Foundation
+
+# src2pkg-ng is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with src2pkg-ng.  If not, see <http://www.gnu.org/licenses/>.
+
+checkout_cvs() {
+   declare dir="$1"
+   declare server="$2"
+   declare repo_path="$3"
+   tprintf $"@summary{Checking out CVS repository}: %s" "$server:$repo_path"
+   cvs -z3 -d "pserver:anonymous@$server:$repo_path" -D "$VERSION" co "$dir" > /dev/null
+   find "$dir" -name "CVS" -type d -exec rm -rf "{}" "+"
+}

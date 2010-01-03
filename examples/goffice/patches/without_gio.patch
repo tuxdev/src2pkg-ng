@@ -1,0 +1,49 @@
+--- goffice-0.7.15/goffice/utils/go-file.c	2009-11-02 08:33:56.874097311 -0800
++++ goffice-0.7.15/goffice/utils/go-file.c	2009-11-02 08:42:17.371097071 -0800
+@@ -28,8 +28,6 @@
+ #include <gsf/gsf-output-stdio.h>
+ #include <glib/gstdio.h>
+ #include <glib/gi18n-lib.h>
+-#include <gsf/gsf-input-gio.h>
+-#include <gsf/gsf-output-gio.h>
+ #ifdef G_OS_WIN32
+ #include <windows.h>
+ #include <io.h>
+@@ -560,7 +558,25 @@
+ 		return result;
+ 	}
+ 
+-	return gsf_input_gio_new_for_uri (uri, err);
++	{
++		GsfInput *http = gsf_input_http_new (uri, err);
++		
++		if (http != NULL) {
++			GsfInput *result;
++			gsf_off_t size;
++
++			/* guarantee that file descriptors will be seekable */
++			size = gsf_input_size (http);
++			result = gsf_input_memory_new_clone (gsf_input_read (http, size, NULL), size);
++
++			g_object_unref (G_OBJECT (http));
++
++			return result;
++		}
++	}
++	g_set_error (err, gsf_input_error (), 0,
++		     "Invalid or non-supported URI");
++	return NULL;
+ }
+ 
+ GsfOutput *
+@@ -589,7 +605,9 @@
+ 		return result;
+ 	}
+ 
+-	return gsf_output_gio_new_for_uri (uri, err);
++	g_set_error (err, gsf_output_error_id (), 0,
++		     "Invalid or non-supported URI");
++	return NULL;
+ }
+ 
+ /* ------------------------------------------------------------------------- */

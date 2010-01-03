@@ -1,0 +1,221 @@
+#!bash
+# vim:ff=unix:enc=utf8:ts=3:sw=3:et
+
+# src2pkg-ng - package creation toolkit
+# Copyright (C) 2005-2009 Gilbert Ashley
+# Copyright (C) 2009 Timothy Goya
+
+# src2pkg-ng is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2 as 
+# published by the Free Software Foundation
+
+# src2pkg-ng is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with src2pkg-ng.  If not, see <http://www.gnu.org/licenses/>.
+
+read_char() {
+   set -eu
+   declare file="$1"
+   declare offset="$2"
+   declare length="$3"
+   dd if="$file" bs=1 count=$length skip=$offset 2> /dev/null
+}
+
+read_int8() {
+   set -eu
+   declare file="$1"
+   declare offset="$2"
+   dd if="$file" bs=1 count=1 skip=$offset 2> /dev/null | od -A n -t u1
+}
+
+read_int16() {
+   set -eu
+   declare file="$1"
+   declare offset="$2"
+   echo $(( $(read_int8 "$file" $offset) * 256 + $(read_int8 "$file" $(( offset + 1))) ))
+}
+
+read_int32() {
+   set -eu
+   declare file="$1"
+   declare offset="$2"
+   echo $(( $(read_int16 "$file" $offset) * 256 * 256 + $(read_int16 "$file" $(( offset + 2))) ))
+}
+
+read_int64() {
+   set -eu
+   declare file="$1"
+   declare offset="$2"
+   echo $(( $(read_int32 "$file" $offset) * 256 * 256 * 256 * 256 + $(read_int32 "$file" $(( offset + 4))) ))
+}
+
+read_string() {
+   set -eu
+   declare file="$1"
+   declare offset="$2"
+   declare bin="$(dd if="$file" bs=1 count=64 skip=$offset 2> /dev/null | od -A n -t x1 | tr -d \$'\n *')"
+   (( offset += 64 ))
+   declare str=""
+   while [[ "${BIN:0:2}" != "00" ]] ; do
+      str="$str$(printf"\x${bin:0:2}")"
+      bin="${bin:2}"
+      if [[ ! "$bin" ]] ; then
+         bin="$(dd if="$file" bs=1 count=64 skip=$offset 2> /dev/null | od -A n -t x1 | tr -d \$'\n *')"
+         (( offset += 64 ))
+      fi
+   done
+   echo "$str"
+}
+
+read_bin() {
+   set -eu
+   declare file="$1"
+   declare offset="$2"
+   declare length="$3"
+   dd if="$file" bs=1 count=$length skip=$offset 2> /dev/null | od -A n -t x1 | tr -d \$'\n *'
+}
+
+read_string_array() {
+   set -eu
+   declare file="$1"
+   declare offset="$2"
+   declare count="$3"
+   declare array_var="$4"
+   unset $array_var
+   declare bin="$(dd if="$file" bs=1 count=64 skip=$offset 2> /dev/null | od -A n -t x1 | tr -d \$'\n *')"
+   (( offset += 64 ))
+   while (( count > 0 )) ; do
+      declare str=""
+      while [[ "${BIN:0:2}" != "00" ]] ; do
+         str="$str$(printf "\x${bin:0:2}")"
+         bin="${bin:2}"
+         if [[ ! "$BIN" ]] ; then
+            bin="$(dd if="$file" bs=1 count=64 skip=$offset 2> /dev/null | od -A n -t x1 | tr -d \$'\n *')"
+            (( offset += 64 ))
+         fi
+      done
+      push_back "$array_var" "$str"
+      (( --count ))
+   done
+}
+
+write_nulls() {
+   declare file="$1"
+   declare offset="$2"
+   declare length="$3"
+   dd if=/dev/zero of="$file" bs=1 seek=$offset count=$length 2> /dev/null
+}
+
+rpm_magic() {
+   [[ "$(dd if="$1" bs=1 count=4 2> /dev/null)" = $'\xED\xAB\xEE\xDB' ]]
+}
+
+rpm_major() {
+   set -eu
+   read_int8 "$1" 4
+}
+
+rpm_minor() {
+   set -eu
+   read_int8 "$1" 5
+}
+
+rpm_type() {
+   set -eu
+   read_int16 "$1" 6
+}
+
+rpm_archnum() {
+   set -eu
+   read_int16 "$1" 8
+}
+
+rpm_name() {
+   set -eu
+   dd if="$1" bs=1 count=66 skip=10 2> /dev/null
+}
+
+rpm_osnum() {
+   set -eu
+   read_int16 "$1" 76
+}
+
+rpm_sig_type() {
+   set -eu
+   read_int16 "$1" 78
+}
+
+rpm_read_index() {
+   declare file="$1"
+   declare index_var="$2"
+   declare offset="$3"
+   if [[ "$(dd if="$file" bs=1 count=3 skip=$offset 2> /dev/null)" != $'\x8E\xAD\xE8' ]] ; then
+      tprintf $"@error{Error!}: RPM header not valid\n"
+      return 1
+   fi
+   declare header_version="$(read_int8 "$file" $(( offset + 3 )))"
+   declare index_entries="$(read_int32 "$file" $(( offset + 8 )))"
+   declare store_size="$(read_int32 "$file" $(( offset + 12 )))"
+   declare index=0
+   while (( index != index_entries )) ; do
+      declare index_offset=$(( offset + 16 + index * 16 ))
+      declare tag=$(read_int32 "$file" $index_offset)
+      declare type=$(read_int32 "$file" $(( index_offset + 4 )))
+      declare data_offset=$(read_int32 "$file" $(( index_offset + 8 )))
+      declare data_count=$(read_int32 "$file" $(( index_offset + 12 )))
+      declare file_offset=$(( offset + 16 + index_entries * 16 + data_offset ))
+      eval "$index_var[$tag]=\"$type $file_offset $data_count\""
+      (( ++index ))
+   done
+   RET_END_OFFSET=$(( offset + 16 + index_entries * 16 + store_size ))
+}
+
+rpm_read_data() {
+   set -eu
+   declare file="$1"
+   declare index_var="$2"
+   declare tag="$3"
+   eval "declare index_entry=\"\${$index_var[$tag]}\""
+   declare type=""
+   declare offset=""
+   declare count=""
+   read type offset count <<< "$index_entry"
+   case "$type" in
+      0)
+         ;;
+      1)
+         read_char "$file" "$offset" "$count"
+         ;;
+      2)
+         read_int8 "$file" "$offset"
+         ;;
+      3)
+         read_int16 "$file" "$offset"
+         ;;
+      4)
+         read_int32 "$file" "$offset"
+         ;;
+      5)
+         read_int64 "$file" "$offset"
+         ;;
+      6)
+         read_string "$file" "$offset"
+         ;;
+      7)
+         read_bin "$file" "$offset" "$count"
+         ;;
+      8)
+         read_string_array "$file" "$offset" "$count" "RET_ARRAY"
+         ;;
+      9)
+         read_string_array "$file" "$offset" "$count" "RET_ARRAY"
+         ;;
+      *)
+         tprintf $"@warning{Warning!}: Header data type %s unsupported\n" "$type"
+         ;;
+   esac
+}

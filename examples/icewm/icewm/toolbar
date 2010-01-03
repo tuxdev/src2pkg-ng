@@ -1,0 +1,4 @@
+prog rxvt xterm rxvt -fn 6x13 -bg black -cr green -fg white -C
+prog PCManFM /usr/share/pixmaps/pcmanfm.png pcmanfm
+prog Firefox /usr/share/pixmaps/firefox.png firefox
+prog LyX /usr/share/lyx/images/lyx.png lyx

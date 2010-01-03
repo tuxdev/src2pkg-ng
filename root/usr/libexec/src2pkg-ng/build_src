@@ -1,0 +1,415 @@
+#!bash
+# vim:ff=unix:enc=utf8:ts=3:sw=3:et
+
+# src2pkg-ng - package creation toolkit
+# Copyright (C) 2005-2009 Gilbert Ashley
+# Copyright (C) 2009 Timothy Goya
+
+# src2pkg-ng is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2 as 
+# published by the Free Software Foundation
+
+# src2pkg-ng is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with src2pkg-ng.  If not, see <http://www.gnu.org/licenses/>.
+
+{
+   shopt -s nullglob
+   declare handler=""
+   for handler in "$SRC2PKG_NG_DIR/build"/* ; do
+      source "$handler"
+   done
+   shopt -u nullglob
+}
+
+configure_src() {
+   declare configure_type="$1"
+   declare src_dir="$2"
+   shift 2
+   configure_cmd_$configure_type "$src_dir/$CONFIG_SUBDIR" "$@"
+   declare configure_cmd="$RET_CMD"
+   if [[ "$configure_cmd" ]] ; then
+      set +e
+      tprintf "@summary{Sandbox self-check}: "
+      declare warnings=""
+      warnings="$($SANDBOX -c "${DEPS_DIRS[@]/#/-r}" -r "$SYSTEM_DIR" -e /dev -e /proc -e /sys -e /tmp -e /var/tmp -e "$src_dir" 2>&1)"
+      declare code=$?
+      if (( code == 0 )) ; then
+         tprintf $"@success{Passed!}\n"
+      else
+         tprintf $"@error{Failed!}\n"
+      fi
+      if [[ "$warnings" ]] ; then
+         echo "$warnings"
+      fi
+      if (( code != 0 )) ; then
+         cleanup $code
+      fi
+      set -e
+      tprintf $"@summary{Configuring sources using}\n"
+      echo  " $configure_cmd"
+      IFS=$' \n\t'
+      set +eu
+      CFLAGS="$ARCH_FLAGS" \
+      CXXFLAGS="$ARCH_FLAGS" \
+      $SANDBOX "${DEPS_DIRS[@]/#/-r}" -r "$SYSTEM_DIR" \
+         -e /dev -e /proc -e /sys -e /tmp -e /var/tmp -e "$src_dir" \
+         "$BASH" -c "cd \"$src_dir/$CONFIG_SUBDIR\" && $configure_cmd" > "$src_dir/$NAME-configure.log" 2>&1
+      declare code=$?
+      set -eu
+      IFS=$'\n'
+      if (( code == 0 )) ; then
+         tprintf "@summary{Configuration} - @success{Successful!}!\n"
+      else
+         tprintf $"@error{Error!}: Configuring sources failed\n"
+         cleanup $code
+      fi
+   else
+      tprintf $"@warning{Warning!}: No configure command returned by handler\n"
+   fi
+}
+
+compile_src() {
+   declare compile_type="$1"
+   declare src_dir="$2"
+   shift 2
+   compile_cmd_$compile_type "$src_dir/$CONFIG_SUBDIR" "$@"
+   declare compile_cmd="$RET_CMD"
+   if [[ "$compile_cmd" ]] ; then
+      set +e
+      tprintf "@summary{Sandbox self-check}: "
+      declare warnings=""
+      warnings="$($SANDBOX -c "${DEPS_DIRS[@]/#/-r}" -r "$SYSTEM_DIR" -e /dev -e /proc -e /sys -e /tmp -e /var/tmp -e "$src_dir" 2>&1)"
+      declare code=$?
+      if (( code == 0 )) ; then
+         tprintf $"@success{Passed!}\n"
+      else
+         tprintf $"@error{Failed!}\n"
+      fi
+      if [[ "$warnings" ]] ; then
+         echo "$warnings"
+      fi
+      if (( code != 0 )) ; then
+         cleanup $code
+      fi
+      set -e
+      tprintf $"@summary{Compiling sources using}\n"
+      echo  " $compile_cmd"
+      IFS=$' \n\t'
+      set +eu
+      CFLAGS="$ARCH_FLAGS" \
+      CXXFLAGS="$ARCH_FLAGS" \
+      $SANDBOX "${DEPS_DIRS[@]/#/-r}" -r "$SYSTEM_DIR" \
+         -e /dev -e /proc -e /sys -e /tmp -e /var/tmp -e "$src_dir" \
+         "$BASH" -c "cd \"$src_dir/$CONFIG_SUBDIR\" && $compile_cmd" > "$src_dir/$NAME-compile.log" 2>&1
+      declare code=$?
+      set -eu
+      IFS=$'\n'
+      if (( code == 0 )) ; then
+         tprintf "@summary{Compilation} - @success{Successful!}!\n"
+      else
+         tprintf $"@error{Error!}: Compiling sources failed\n"
+         cleanup $code
+      fi
+   else
+      tprintf $"@warning{Warning!}: No compile command returned by handler\n"
+   fi
+}
+
+safe_install() {
+   declare install_type="$1"
+   declare src_dir="$2"
+   declare pkg_dir="$3"
+   shift 3
+   if [[ "${1:-""}" ]] ; then
+      install_cmd_$install_type "$src_dir/$CONFIG_SUBDIR" "$pkg_dir" "$@"
+   else
+      install_cmd_$install_type "$src_dir/$CONFIG_SUBDIR" "$pkg_dir" "install"
+   fi
+   declare install_cmd="$RET_CMD"
+   if [[ "$install_cmd" ]] ; then
+      set +e
+      tprintf "@summary{Sandbox self-check}: "
+      declare warnings=""
+      warnings="$($SANDBOX -c -w "$pkg_dir" "${DEPS_DIRS[@]/#/-r}" -r "$SYSTEM_DIR" -e /dev -e /proc -e /sys -e /tmp -e /var/tmp -e "$src_dir" 2>&1)"
+      declare code=$?
+      if (( code == 0 )) ; then
+         tprintf $"@success{Passed!}\n"
+      else
+         tprintf $"@error{Failed!}\n"
+      fi
+      if [[ "$warnings" ]] ; then
+         echo "$warnings"
+      fi
+      if (( code != 0 )) ; then
+         cleanup $code
+      fi
+      set -e
+      mkdir -p "$pkg_dir"
+      tprintf $"@summary{Installing sources using}\n"
+      echo  " $install_cmd"
+      IFS=$' \n\t'
+      set +eu
+      $SANDBOX -w "$pkg_dir" "${DEPS_DIRS[@]/#/-r}" -r "$SYSTEM_DIR" \
+         -e /dev -e /proc -e /sys -e /tmp -e /var/tmp -e "$src_dir" \
+         "$BASH" -c "cd \"$src_dir/$CONFIG_SUBDIR\" && $install_cmd" > "$src_dir/$NAME-install.log" 2>&1
+      declare code=$?
+      set -eu
+      IFS=$'\n'
+      if (( code == 0 )) ; then
+         tprintf "@summary{Installation} - @success{Successful!}!\n"
+      else
+         tprintf $"@error{Error!}: Installing sources failed\n"
+         cleanup $code
+      fi
+   else
+      tprintf $"@warning{Warning!}: No install command returned by handler\n"
+   fi
+   if [[ ! "$(find "$pkg_dir" -type f)" ]] ; then
+      tprintf $"@error{Error!}: The package tree has no content!\n"
+      cleanup 1
+   fi
+}
+
+install_extra() {
+   declare src_dir="$1"
+   declare pkg_dir="$2"
+   if (( INSTALL_DOCS )) ; then
+      install_docs "$src_dir" "$pkg_dir"
+   fi
+   if (( INSTALL_PKGCONFIG )) ; then
+      install_pkgconfig "$src_dir" "$pkg_dir"
+   fi
+   if (( INSTALL_XINIT )) ; then
+      install_xinit "$src_dir" "$pkg_dir"
+   fi
+   if (( INSTALL_INIT )) ; then
+      install_init "$src_dir" "$pkg_dir"
+   fi
+   if (( INSTALL_CONF )) ; then
+      install_conf "$src_dir" "$pkg_dir"
+   fi
+   if (( INSTALL_ICONS )) ; then
+      install_icons "$src_dir" "$pkg_dir"
+   fi
+   if (( INSTALL_DESKTOP )) ; then
+      install_desktop "$src_dir" "$pkg_dir"
+   fi
+}
+
+install_docs() {
+   declare src_dir="$1"
+   declare pkg_dir="$2"
+   declare patterns=()
+   push_back patterns "ABOUT"
+   push_back patterns "ANNOUNCE"
+   push_back patterns "AUTHORS"
+   push_back patterns "BUGS"
+   push_back patterns "CHANGELOG"
+   push_back patterns "CHANGES"
+   push_back patterns "ChangeLog"
+   push_back patterns "Changelog"
+   push_back patterns "CONFIGURATION"
+   push_back patterns "CONTRIBUTORS"
+   push_back patterns "COPYING*"
+   push_back patterns "COPYRIGHT"
+   push_back patterns "CREDITS"
+   push_back patterns "FAQ"
+   push_back patterns "FEATURES"
+   push_back patterns "GPL*"
+   push_back patterns "gpl*"
+   push_back patterns "History"
+   push_back patterns "HINTS"
+   push_back patterns "HISTORY"
+   push_back patterns "INSTALL"
+   push_back patterns "LGPL*"
+   push_back patterns "lgpl*"
+   push_back patterns "LICENSE*"
+   push_back patterns "LICENCE*"
+   push_back patterns "License*"
+   push_back patterns "Licence*"
+   push_back patterns "license*"
+   push_back patterns "licence*"
+   push_back patterns "LSM"
+   push_back patterns "$NAME-$VERSION.lsm"
+   push_back patterns "$NAME.lsm"
+   push_back patterns "MANIFEST"
+   push_back patterns "NEWS"
+   push_back patterns "PKGINFO"
+   push_back patterns "PKG-INFO"
+   push_back patterns "README*"
+   push_back patterns "*.README"
+   push_back patterns "ReadMe*"
+   push_back patterns "Readme*"
+   push_back patterns "readme*"
+   push_back patterns "readme*"
+   push_back patterns "THANKS"
+   push_back patterns "TIPS"
+   push_back patterns "TODO"
+   push_back patterns "VERSION"
+   declare docs=()
+   declare pattern=""
+   for pattern in "${patterns[@]}" ; do
+      push_back docs $(find "$src_dir" -name "$pattern" -maxdepth 1 -type f)
+   done
+   mkdir -p "$pkg_dir/$DOC_DIR"
+   if (( ${#docs[@]} )) ; then
+      tprintf "@summary{Installing docs} - "
+      declare doc=""
+      for doc in "${docs[@]}" ; do
+         cp -af "$doc" "$pkg_dir/$DOC_DIR"
+      done
+      tprintf $"@success{Done}\n"
+   fi
+}
+
+install_pkgconfig() {
+   declare src_dir="$1"
+   declare pkg_dir="$2"
+   if ! [[ "$(find "$pkg_dir" -name "*.pc" -type f)" ]] ; then
+      shopt -s nullglob
+      declare pkgconfigs=($(find "$src_dir" -name "*.pc" ! -name "*uninstalled.pc" -type f) "$SOURCES_DIR"/*.pc)
+      shopt -u nullglob
+      if (( ${#pkgconfigs[@]} )) ; then
+         tprintf "@summary{Installing pkgconfig} - "
+         declare pkgconfig=""
+         for pkgconfig in "${pkgconfigs[@]}" ; do
+            if grep -Fq Cflags "$pkgconfig" ; then
+               mkdir -p "$pkg_dir/$LIB_DIR/pkgconfig"
+               cp -f "$pkgconfig" "$pkg_dir/$LIB_DIR/pkgconfig"
+            fi
+         done
+         tprintf $"@success{Done}\n"
+      fi
+   fi
+}
+
+install_xinit() {
+   declare src_dir="$1"
+   declare pkg_dir="$2"
+   if ! [[ "$(find "$pkg_dir" -name "xinitrc.*" -type f)" ]] ; then
+      shopt -s nullglob
+      declare xinits=($(find "$src_dir" -name "xinitrc.*") "$SOURCES_DIR"/xinitrc.*)
+      shopt -u nullglob
+      if (( ${#xinits[@]} )) ; then
+         tprintf "@summary{Installing xinit} - "
+         declare xinit=""
+         for xinit in "${xinits[@]}" ; do
+            mkdir -p "$pkg_dir/$SYSCONF_DIR/X11/xinit"
+            cp -af "$xinit" "$pkg_dir/$SYSCONF_DIR/X11/xinit"
+         done
+         tprintf $"@success{Done}\n"
+      fi
+   fi
+}
+
+install_init() {
+   declare src_dir="$1"
+   declare pkg_dir="$2"
+   if ! [[ "$(find "$pkg_dir" -name "rc.*" -type f)" ]] ; then
+      shopt -s nullglob
+      declare inits=($(find "$src_dir" -name "rc.*") "$SOURCES_DIR"/rc.*)
+      shopt -u nullglob
+      if (( ${#inits[@]} )) ; then
+         tprintf "@summary{Installing init} - "
+         declare init=""
+         for init in "${inits[@]}" ; do
+            # FIXME: what's the correct distro-specific thing to do?
+            mkdir -p "$pkg_dir/$SYSCONF_DIR/rc.d"
+            cp -af "$init" "$pkg_dir/$SYSCONF_DIR/rc.d"
+         done
+         tprintf $"@success{Done}\n"
+      fi
+   fi
+}
+
+install_conf() {
+   declare src_dir="$1"
+   declare pkg_dir="$2"
+   if [[ -f "$pkg_dir/$SYSCONF_DIR/$NAME.conf" || -f "$pkg_dir/$SYSCONF_DIR/${NAME}rc" ]] ; then
+      declare confs=()
+      if [[ -f "$SOURCES_DIR/$NAME.conf" ]] ; then
+         push_back confs "$SOURCES_DIR/$NAME.conf"
+      fi
+      if [[ -f "$SOURCES_DIR/${NAME}rc" ]] ; then
+         push_back confs "$SOURCES_DIR/${NAME}rc"
+      fi
+      if (( ${#confs[@]} )) ; then
+         tprintf "@summary{Installing conf} - "
+         declare conf=""
+         for conf in "${confs[@]}" ; do
+            mkdir -p "$pkg_dir/$SYSCONF_DIR"
+            cp -af "$conf" "$pkg_dir/$SYSCONF_DIR"
+         done
+         tprintf $"@success{Done}\n"
+      fi
+   fi
+}
+
+install_icons() {
+   declare src_dir="$1"
+   declare pkg_dir="$2"
+   # FIXME: Split each image type into it's own function
+   # FIXME: Don't do anything if the installer already did something
+   declare xpms=($(find "$src_dir" -name "$NAME.xpm"))
+   if [[ -f "$SOURCES_DIR/$NAME.xpm" ]] ; then
+      push_back xpms "$SOURCES_DIR/$NAME.xpm"
+   fi
+   declare pngs=($(find "$src_dir" -name "$NAME.png"))
+   if [[ -f "$SOURCES_DIR/$NAME.png" ]] ; then
+      push_back pngs "$SOURCES_DIR/$NAME.png"
+   fi
+   declare svgs=($(find "$src_dir" -name "$NAME.svg"))
+   if [[ -f "$SOURCES_DIR/$NAME.svg" ]] ; then
+      push_back svgs "$SOURCES_DIR/$NAME.svg"
+   fi
+   if (( ${#xpms[@]} )) || (( ${#pngs[@]} )) || (( ${#svgs[@]} )) ; then
+      tprintf "@summary{Installing icons} - "
+      set +u
+      declare xpm=""
+      for xpm in "${xpms[@]}" ; do
+         mkdir -p "$pkg_dir/$PIXMAPS_DIR"
+         cp -af "$xpm" "$pkg_dir/$PIXMAPS_DIR"
+      done
+      declare png=""
+      for png in "${pngs[@]}" ; do
+         mkdir -p "$pkg_dir/$ICONS_DIR/hicolor/48x48/apps"
+         cp -af "$png" "$pkg_dir/$ICONS_DIR/hicolor/48x48/apps"
+      done
+      declare svg=""
+      for svg in "${svgs[@]}" ; do
+         mkdir -p "$pkg_dir/$ICONS_DIR/hicolor/scalable/apps"
+         cp -af "$svg" "$pkg_dir/$ICONS_DIR/hicolor/scalable/apps"
+      done
+      set -u
+      tprintf $"@success{Done}\n"
+   fi
+}
+
+install_desktop() {
+   declare src_dir="$1"
+   declare pkg_dir="$2"
+   shopt -s nullglob
+   declare desktops=($(find "$src_dir" -name "*.desktop") "$SOURCES_DIR"/*.desktop)
+   shopt -u nullglob
+   if ! [[ "$(find "$pkg_dir" -name "*.desktop" -type f)" ]] ; then
+      if (( ${#desktops[@]} )) ; then
+         tprintf "@summary{Installing desktop} - "
+         declare desktop=""
+         for desktop in "${desktops[@]}" ; do
+            if [[ -f "$pkg_dir/$SYSCONF_DIR/X11/xinit/xinitrc.$NAME" && $(basename "$desktop" | tr "[:upper:]" "[:lower:]") = $(echo "$NAME.desktop" | tr "[:upper:]" "[:lower:]") ]] ; then
+               mkdir -p "$pkg_dir/$DATA_DIR/xsesssions"
+               cp "$desktop" "$pkg_dir/$DATA_DIR/xsesssions"
+            else
+               mkdir -p "$pkg_dir/$DATA_DIR/applications"
+               cp "$desktop" "$pkg_dir/$DATA_DIR/applications" 
+            fi
+         done
+         tprintf $"@success{Done}\n"
+      fi
+   fi
+}

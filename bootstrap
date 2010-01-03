@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# vim:ff=unix:enc=utf8:ts=3:sw=3:et
+
+root/usr/bin/src2pkg-ng \
+   -DSRC2PKG_NG_DIR="${0%/*}/root/usr/libexec/src2pkg-ng" \
+   -DSRC2PKG_NG_ETC="${0%/*}/root/etc/src2pkg-ng" \
+   -DTEXTDOMAINDIR="${0%/*}/locale" "$@"

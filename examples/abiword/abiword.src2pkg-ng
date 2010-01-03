@@ -1,0 +1,50 @@
+#!/usr/bin/env src2pkg-ng
+
+NAME="abiword"
+VERSION="2.8.1"
+BUILD="1"
+
+BRIEF="AbiWord Personal"
+DESC="AbiWord Personal is a lean and fast full-featured word processor. It can import many formats including Word97/2000 and RTF, Palm, Psion, DocBook and XHTML documents, and can export to RTF, Palm, Psion, XHTML, Text, and LaTeX formats."
+HOMEPAGE="http://www.abisource.com/"
+
+INSTALL_PKGCONFIG=0
+INSTALL_DESKTOP=0
+
+fetch_src "http://www.abisource.com/downloads/abiword/$VERSION/source/abiword-$VERSION.tar.gz"
+SRC="$RET_SOURCE"
+check_md5sum "$RET_SOURCE" "284fe25289c160c3797b527a8aacad12"
+fetch_src "http://www.abisource.com/downloads/abiword/$VERSION/source/abiword-docs-$VERSION.tar.gz"
+DOCS_SRC="$RET_SOURCE"
+check_md5sum "$RET_SOURCE" "6a6d8260004280687b862e3b9777c338"
+
+make_dir src
+SRC_DIR="$RET_DIR"
+unpack_archive "$SRC" "$SRC_DIR"
+fixup_src "$SRC_DIR"
+
+CONFIG_FLAGS="--disable-static --enable-shared --enable-plugins --enable-clipart --enable-templates"
+if ! [[ -f "/$INCLUDE_DIR/libgsf-1/gsf/gsf-input-gio.h" ]] ; then
+   CONFIG_FLAGS="$CONFIG_FLAGS --without-gio"
+fi
+configure_src auto "$SRC_DIR" $CONFIG_FLAGS
+compile_src auto "$SRC_DIR"
+make_dir pkg
+PKG_DIR="$RET_DIR"
+safe_install auto "$SRC_DIR" "$PKG_DIR"
+install_extra "$SRC_DIR" "$PKG_DIR"
+push_back DEPS_DIRS "$PKG_DIR"
+
+AUTOPATCH=0
+make_dir docs-src
+DOCS_SRC_DIR="$RET_DIR"
+unpack_archive "$DOCS_SRC" "$DOCS_SRC_DIR"
+fixup_src "$DOCS_SRC_DIR"
+
+configure_src auto "$DOCS_SRC_DIR"
+compile_src auto "$DOCS_SRC_DIR"
+safe_install auto "$DOCS_SRC_DIR" "$PKG_DIR"
+install_extra "$DOCS_SRC_DIR" "$PKG_DIR"
+
+fixup_pkg "$PKG_DIR"
+make_pkg "$PKG_DIR"

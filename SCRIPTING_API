@@ -1,0 +1,140 @@
+      src2pkg-ng Scripting API
+
+   Contents
+      1. Source preparation
+         make_dir
+         fetch_src
+         check_md5sum
+         fetch_resources
+         make_snapshot
+         unpack_archive
+         fixup_src
+            fixup_src_perms
+            apply_patches
+            apply_patch
+            fixup_autotools
+      2. Build
+         configure_src
+         compile_src
+         safe_install
+         install_extra
+            install_docs
+            install_pkgconfig
+            install_xinit
+            install_init
+            install_conf
+            install_icons
+            install_desktop
+      3. Package creation
+         fixup_pkg
+            fix_doc
+            fix_man
+            fix_info
+            compress_docs
+            fix_noarch
+            strip_elf
+            fixup_pkg_perms
+         make_pkg
+
+1. Source preparation
+
+   make_dir TAG
+      Creates a directory in $BUILDS_DIR with template
+      $NAME-$VERSION-$TAG-$BUILD. Removes any existing file or directory with
+      the same path. Returns the path of the created directory in $RET_DIR.
+
+   fetch_src URL [DIR="."]
+      Looks for the filename referenced by $URL in $SOURCES_DIR/$DIR. If the
+      file does not exist, fetch_src downloads the file into $SOURCES_DIR/$DIR.
+      Returns the path to the found or downloaded file in $RET_SOURCE.
+
+   check_md5sum FILE MD5SUM
+      Verifies that the MD5 checksum of $FILE matches $MD5SUM.
+
+   fetch_resources RESOURCE_URL
+      Fetches $RESOURCE_URL/manifest. Uses the contents of manifest to fetch
+      the rest of the resources under $RESOURCE_URL. Verifies the MD5 checksums
+      of the fetched resources.
+
+   make_snapshot SNAPSHOT REPO_TYPE [...]
+      Creates a snapshot in $SOURCES_DIR using the version control system
+      specified by REPO_TYPE and the system-specific extra parameters.
+      $SNAPSHOT is the name of the snapshot without archive or compression
+      extensions. Returns the path the snapshot in $RET_SNAPSHOT.
+
+   unpack_archive FILE DIR
+      Extracts zipped archive $FILE into $DIR. If the archive contains a single
+      top-level directory, then the contents of that directory or moved up to
+      $DIR. Archive formats currently supported are .rpm, .deb, .tar.gz, .tgz,
+      .tar.bz2, .tbz, .tar.xz, .txz, .tar.lz, .tlz, .tar, and .zip
+
+   fixup_src SRC_DIR
+      Applies all fixups for source directories to $SRC_DIR
+      Alternatively, you can apply each fixup individually:
+      fixup_src_perms SRC_DIR
+         Sanitizes source permissions in $SRC_DIR
+      apply_patches SRC_DIR
+         Applies patches in a user-specified $PATCHES array, otherwise looks for
+         *.patch*, *.diff*, and *.dpatch files in $PATCHES_DIR. Patched files are
+         logged to $SRC_DIR/$NAME-patched-files.log
+      apply_patch PATCH DIR
+         Applies a single patch $PATCH to a directory $DIR.  Patched files are
+         logged to $DIR/$NAME-patched-files.log
+      fixup_autotools SRC_DIR
+         Performs many fixups to sources using the autotools build system.
+
+2. Build
+
+   configure_src CONFIGURE_TYPE SRC_DIR [...]
+      Configures source in $SRC_DIR using the build system specified by
+      $CONFIGURE_TYPE. Configuration is done within the sandbox $SANDBOX using
+      $SYSTEM_DIR overlayed with extra directories in the $DEPS_DIRS array.
+      Output of configuration is logged to $SRC_DIR/$NAME-configure.log
+
+   compile_src COMPILE_TYPE SRC_DIR [...]
+      Compiles source in $SRC_DIR using the build system specified by
+      $COMPILE_TYPE. Compilation is done within the sandbox $SANDBOX using
+      $SYSTEM_DIR overlayed with extra directories in the $DEPS_DIRS array.
+      Output of compilation is logged to $SRC_DIR/$NAME-compile.log
+
+   safe_install INSTALL_TYPE SRC_DIR PKG_DIR [...]
+      Installs source in $SRC_DIR into $PKG_DIR using the build system
+      specified by $COMPILE_TYPE. Installation is done within the sandbox
+      $SANDBOX using $SYSTEM_DIR overlayed with extra directories in the
+      $DEPS_DIRS array.  Output of installation is logged to
+      $SRC_DIR/$NAME-install.log
+
+   install_extra SRC_DIR PKG_DIR
+      Installs all special files from $SRC_DIR into $PKG_DIR
+      Alternatively, you can install each file type separately:
+      install_docs SRC_DIR PKG_DIR
+      install_pkgconfig SRC_DIR PKG_DIR
+      install_xinit SRC_DIR PKG_DIR
+      install_init SRC_DIR PKG_DIR
+      install_conf SRC_DIR PKG_DIR
+      install_icons SRC_DIR PKG_DIR
+      install_desktop SRC_DIR PKG_DIR
+
+3. Package creation
+
+   fixup_pkg PKG_DIR
+      Applies all fixups for package directories to $SRC_DIR
+      Alternatively, you can apply each fixup individually:
+      fix_doc PKG_DIR
+         Corrects paths for standard documentation in $PKG_DIR
+      fix_man PKG_DIR
+         Corrects paths for manuals in $PKG_DIR
+      fix_info PKG_DIR
+         Corrects paths for info pages in $PKG_DIR
+      compress_docs PKG_DIR
+         Compresses manuals and info pages in $PKG_DIR
+      fix_noarch PKG_DIR
+         Checks if the $PKG_DIR actually contains any architecture-specific
+         files, and if there none, sets $ARCH to "noarch"
+      strip_elf PKG_DIR
+         Strips ELF executables in $PKG_DIR
+      fixup_pkg_perms PKG_DIR
+         Sanitizes package permissions in $PKG_DIR
+
+   make_pkg PKG_DIR [PKG_NAME="$NAME"]
+      Creates a $PKG_FORMAT package using the files in $PKG_DIR

@@ -1,0 +1,387 @@
+#: root/usr/bin/src2pkg-ng:49
+msgid "@error{Error!}: Could not parse command line arguments\\n"
+msgstr ""
+
+#: root/usr/bin/src2pkg-ng:96
+msgid ""
+"@error{Error!}: Running src2pkg-ng under SUID or SGID is extremely dangerous"
+"\\n"
+msgstr ""
+
+#: root/usr/bin/src2pkg-ng:140 root/usr/bin/src2pkg-ng:180
+msgid "@warning{Warning!}: ARCH not detected, using 'native'\\n"
+msgstr ""
+
+#: root/usr/bin/src2pkg-ng:188
+msgid "@error{Error!}: %s is not a valid package style\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/build_src:43
+#: root/usr/libexec/src2pkg-ng/build_src:91
+#: root/usr/libexec/src2pkg-ng/build_src:144
+#: root/usr/libexec/src2pkg-ng/prepare_src:77
+msgid "@success{Passed!}\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/build_src:45
+#: root/usr/libexec/src2pkg-ng/build_src:93
+#: root/usr/libexec/src2pkg-ng/build_src:146
+#: root/usr/libexec/src2pkg-ng/prepare_src:80
+#: root/usr/libexec/src2pkg-ng/prepare_src:148
+#: root/usr/libexec/src2pkg-ng/prepare_src:153
+#: root/usr/libexec/src2pkg-ng/prepare_src:162
+#: root/usr/libexec/src2pkg-ng/prepare_src:182
+#: root/usr/libexec/src2pkg-ng/prepare_src:187
+#: root/usr/libexec/src2pkg-ng/prepare_src:205
+#: root/usr/libexec/src2pkg-ng/prepare_src:229
+#: root/usr/libexec/src2pkg-ng/prepare_src:238
+#: root/usr/libexec/src2pkg-ng/prepare_src:338
+msgid "@error{Failed!}\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/build_src:54
+msgid "@summary{Configuring sources using}\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/build_src:69
+msgid "@error{Error!}: Configuring sources failed\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/build_src:73
+msgid "@warning{Warning!}: No configure command returned by handler\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/build_src:102
+msgid "@summary{Compiling sources using}\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/build_src:117
+msgid "@error{Error!}: Compiling sources failed\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/build_src:121
+msgid "@warning{Warning!}: No compile command returned by handler\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/build_src:156
+msgid "@summary{Installing sources using}\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/build_src:169
+msgid "@error{Error!}: Installing sources failed\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/build_src:173
+msgid "@warning{Warning!}: No install command returned by handler\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/build_src:176
+msgid "@error{Error!}: The package tree has no content!\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/build_src:269
+#: root/usr/libexec/src2pkg-ng/build_src:289
+#: root/usr/libexec/src2pkg-ng/build_src:308
+#: root/usr/libexec/src2pkg-ng/build_src:328
+#: root/usr/libexec/src2pkg-ng/build_src:351
+#: root/usr/libexec/src2pkg-ng/build_src:392
+#: root/usr/libexec/src2pkg-ng/build_src:415
+#: root/usr/libexec/src2pkg-ng/cleanup:40
+#: root/usr/libexec/src2pkg-ng/create_pkg:87
+#: root/usr/libexec/src2pkg-ng/create_pkg:98
+#: root/usr/libexec/src2pkg-ng/create_pkg:108
+#: root/usr/libexec/src2pkg-ng/create_pkg:139
+#: root/usr/libexec/src2pkg-ng/create_pkg:167
+#: root/usr/libexec/src2pkg-ng/create_pkg:209
+#: root/usr/libexec/src2pkg-ng/create_pkg:306
+#: root/usr/libexec/src2pkg-ng/prepare_src:255
+#: root/usr/libexec/src2pkg-ng/prepare_src:278
+#: root/usr/libexec/src2pkg-ng/prepare_src:390
+msgid "@success{Done}\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/cleanup:35
+msgid "@summary{Cleaning up} - "
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/create_pkg:85
+msgid "@summary{Fixing doc dirs} - "
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/create_pkg:95
+msgid "@summary{Fixing man dirs} - "
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/create_pkg:106
+msgid "@summary{Fixing info dirs} - "
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/create_pkg:115
+msgid "@summary{Compressing man pages} - "
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/create_pkg:143
+msgid "@summary{Compressing info pages} - "
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/create_pkg:173
+msgid "@summary{Checking if package is architecture independent} - "
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/create_pkg:190
+msgid "it is"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/create_pkg:192
+msgid "it isn't"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/create_pkg:198
+msgid "@summary{Stripping ELF files} - "
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/create_pkg:214
+msgid "@summary{Correcting package permissions} - "
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:32
+msgid "@error{Error!}: BUILDS_DIR not valid\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:37
+msgid "@summary{Removing existing} %s\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:40
+msgid "@summary{Creating working directory} %s\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:53
+msgid "@summary{Found symlink to source}: %s\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:55
+msgid "@summary{Found source}: %s\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:57
+msgid "@summary{Downloading from}: %s\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:63
+msgid "@summary{Downloaded source to}: %s\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:65
+msgid "@error{Error!}: Downloading %s not completed\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:75
+msgid "@summary{Checksumming %s} - "
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:106
+msgid "@summary{Found symlink to snapshot}: %s\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:108
+msgid "@summary{Found snapshot}: %s\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:149
+msgid "Not an RPM package"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:154
+msgid "RPM package not version 3"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:163
+msgid "MD5 checksum incorrect"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:183
+msgid "Not a Debian package"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:188
+msgid "Debian package not version 2"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:206
+msgid "Cannot find data tarball in Debian package"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:230
+msgid "Unsupported archive type"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:239
+msgid "Archive might be defective"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:273
+msgid "@summary{Correcting source permissions} - "
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:285
+msgid "@summary{Applying user-specified patches}\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:295
+msgid "@summary{Applying patches found in} %s\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:301
+msgid "@summary{No patches found in} %s\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:339
+msgid "Unsupported patch type"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:382
+msgid "@notice{Notice} - configure script missing or stale in %s\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/prepare_src:383
+msgid "@summary{Regenerating config files} - "
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/rpm_utils:157
+msgid "@error{Error!}: RPM header not valid\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/rpm_utils:217
+msgid "@warning{Warning!}: Header data type %s unsupported\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/build/auto:37
+msgid "@summary{Detecting configure type}: "
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/build/auto:47
+msgid "@summary{Detecting compile type}: "
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/build/auto:58
+msgid "@summary{Detecting install type}: "
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/pkg/debian:38
+msgid "@warning{Warning!}: Package structure policy not 'LSB'.\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/pkg/debian:39
+msgid "Package may not properly comply with Debian LSB conventions"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/pkg/debian:46
+msgid "@error{Error!}: Creating Debian control tarball failed\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/pkg/debian:51
+msgid "@error{Error!}: Creating Debian data tarball failed\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/pkg/debian:61
+#: root/usr/libexec/src2pkg-ng/pkg/slackware:108
+msgid "@summary{Package Creation} - @success{Successful!} Package location\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/pkg/slackware:66
+msgid "@warning{Warning!}: No tar-1.13 found in the PATH.\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/pkg/slackware:67
+msgid "Cannot build true Slackware-compatible packages"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/pkg/slackware:70
+msgid "@warning{Warning!}: Package structure policy not 'slackware'.\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/pkg/slackware:71
+msgid "Package may not properly comply with Slackware conventions"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/pkg/slackware:100
+msgid "@error{Error!}: Unsupported compression for Slackware package\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/pkg/slackware:105
+msgid "@error{Error!}: Creating Slackware package tarball failed\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/pkg/slackware:121
+msgid ""
+"@warning{Warning!}: BRIEF too long, line in description exceeds 80 characters"
+"\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/pkg/slackware:133
+msgid "@warning{Warning!}: DESC too long, truncating\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/pkg/slackware:153
+msgid "@warning{Warning!}: HOMEPAGE too long, line exceeds 80 characters\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/pkg/slackware:159
+msgid "@warning{Warning!}: PACKAGER too long, line exceeds 80 characters\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/repo/cvs:24
+msgid "@summary{Checking out CVS repository}: %s"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/repo/git:23
+msgid "@summary{Checking out Git repository}: %s"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/repo/mercurial:23
+msgid "@summary{Checking out Mercurial repository}: %s"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/repo/svn:23
+msgid "@summary{Checking out Subversion repository}: %s"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/sandbox/basic:33
+msgid "Write layer can only be specified once"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/sandbox/basic:37
+#: root/usr/libexec/src2pkg-ng/sandbox/basic:48
+#: root/usr/libexec/src2pkg-ng/sandbox/basic:59
+#: root/usr/libexec/src2pkg-ng/sandbox/basic:77
+msgid "%s is not an absolute path\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/sandbox/basic:41
+#: root/usr/libexec/src2pkg-ng/sandbox/basic:52
+#: root/usr/libexec/src2pkg-ng/sandbox/basic:63
+#: root/usr/libexec/src2pkg-ng/sandbox/basic:81
+msgid "%s must exist\\n"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/sandbox/basic:69
+#: root/usr/libexec/src2pkg-ng/sandbox/dummy:40
+msgid "Error parsing command line arguments"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/sandbox/basic:87
+msgid "Basic sandbox requires root privileges"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/sandbox/basic:91
+msgid "fusermount not found"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/sandbox/basic:95
+msgid "unionfs-fuse not found"
+msgstr ""
+
+#: root/usr/libexec/src2pkg-ng/sandbox/dummy:29
+msgid "Dummy sandbox is extremely dangerous, use with caution"
+msgstr ""

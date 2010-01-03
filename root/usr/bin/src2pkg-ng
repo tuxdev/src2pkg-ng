@@ -1,0 +1,205 @@
+#!/usr/bin/env bash
+# vim:ff=unix:enc=utf8:ts=3:sw=3:et
+
+# src2pkg-ng - package creation toolkit
+# Copyright (C) 2005-2009 Gilbert Ashley
+# Copyright (C) 2009 Timothy Goya
+
+# src2pkg-ng is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2 as 
+# published by the Free Software Foundation
+
+# src2pkg-ng is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with src2pkg-ng.  If not, see <http://www.gnu.org/licenses/>.
+
+unset $(export | sed "s/^declare -x \([^=]*\).*/\1/")
+export HOME=~
+export PATH="/bin"
+source "/etc/profile" > /dev/null
+umask 022
+if ! [[ "$PATH" =~ /usr/local/sbin ]] ; then
+   export PATH="/usr/local/sbin:/usr/sbin:/sbin:$PATH"
+fi
+
+set -eu
+IFS=$'\n'
+unalias -a
+unset -f $(declare -F | sed "s/^declare -f //")
+
+OWNER="$(id -un)"
+GROUP="$(id -gn)"
+export LC_COLLATE="C"
+export TEXTDOMAIN="src2pkg-ng"
+
+SRC2PKG_NG_DIR="${SRC2PKG_NG_DIR:-"/usr/libexec/src2pkg-ng"}"
+SRC2PKG_NG_ETC="${SRC2PKG_NG_ETC:-"/etc/src2pkg-ng"}"
+
+while getopts :D: opt ; do
+   case $opt in
+      D)
+         eval "export $OPTARG"
+         ;;
+      \?)
+         tprintf $"@error{Error!}: Could not parse command line arguments\n"
+         exit 1
+         ;;
+   esac
+done
+unset opt
+
+shift $(( OPTIND - 1 ))
+SRC2PKG_NG_SCRIPT="$1"
+shift 1
+SCRIPT_DIR="$(dirname "$SRC2PKG_NG_SCRIPT")"
+if [[ "$SCRIPT_DIR" = /* ]] ; then
+   SCRIPT_DIR="$(pwd)/$SCRIPT_DIR"
+fi
+
+eval "$(grep -h "NAME=" "$SRC2PKG_NG_SCRIPT")"
+eval "$(grep -h "VERSION=" "$SRC2PKG_NG_SCRIPT")"
+eval "$(grep -h "BUILD=" "$SRC2PKG_NG_SCRIPT")"
+
+source "$SRC2PKG_NG_DIR/bash_utils"
+
+load_conf() {
+   local conf="$1"
+   local line=""
+   while read line ; do
+      local re="^[ \t\n]*([[:alpha:]][[:alnum:]_]*)=(.*)"
+      if [[ "$line" =~ $re ]] ; then
+         local var_name="${BASH_REMATCH[1]}"
+         local var_value="${BASH_REMATCH[2]}"
+         if eval "[[ ! \"\${$var_name:-\"\"}\" ]]" ; then
+            eval "$var_name=$var_value"
+         fi
+      else
+         eval "$line"
+      fi
+   done < "$conf"
+}
+
+load_conf "$SRC2PKG_NG_DIR/default.conf"
+if [[ -r "$SRC2PKG_NG_ETC/src2pkg-ng.conf" ]] ; then
+   load_conf "$SRC2PKG_NG_ETC/src2pkg-ng.conf"
+fi
+if [[ -r "$HOME/.src2pkg-ng.conf" ]] ; then
+   load_conf "$HOME/.src2pkg-ng.conf"
+fi
+
+unset -f load_conf
+
+if [[ "$(id -u)" != "$(id -ru)" ]] || [[ "$(id -g)" != "$(id -rg)" ]] ; then
+   tprintf $"@error{Error!}: Running src2pkg-ng under SUID or SGID is extremely dangerous\n"
+   exit 1
+fi
+
+if [[ -z "${ARCH:-""}" ]] ; then
+   case "$PKG_STYLE" in
+      local)
+         ARCH=native
+         ARCH_FLAGS=""
+         LIBSUFFIX=""
+         ;;
+      dist)
+         case "$(uname -m)" in
+            ppc | powerpc)
+               ARCH=powerpc
+               ARCH_FLAGS="-march=powerpc"
+               LIBSUFFIX=""
+               ;;
+            s390)
+               ARCH=s390
+               ARCH_FLAGS="-march=s390"
+               LIBSUFFIX=""
+               ;;
+            s390x)
+               ARCH=s390x
+               ARCH_FLAGS="-march=s390x"
+               LIBSUFFIX=""
+               ;;
+            x86_64)
+               ARCH=x86_64
+               ARCH_FLAGS="-march=athlon64"
+               LIBSUFFIX="64"
+               ;;
+            i?86)
+               ARCH=i686
+               ARCH_FLAGS="-march=i686"
+               LIBSUFFIX=""
+               ;;
+            arm*)
+               ARCH=arm
+               ARCH_FLAGS="-march=arm4vt"
+               LIBSUFFIX=""
+               ;;
+            *)
+               tprintf $"@warning{Warning!}: ARCH not detected, using 'native'\n"
+               ARCH=native
+               ARCH_FLAGS=""
+               LIBSUFFIX=""
+               ;;
+         esac
+         ;;
+      archaic)
+         case "$(uname -m)" in
+            ppc | powerpc)
+               ARCH=powerpc
+               ARCH_FLAGS="-march=powerpc"
+               LIBSUFFIX=""
+               ;;
+            s390)
+               ARCH=s390
+               ARCH_FLAGS="-march=s390"
+               LIBSUFFIX=""
+               ;;
+            s390x)
+               ARCH=s390x
+               ARCH_FLAGS="-march=s390x"
+               LIBSUFFIX=""
+               ;;
+            x86_64)
+               ARCH=x86_64
+               ARCH_FLAGS="-march=athlon64"
+               LIBSUFFIX="64"
+               ;;
+            i?86)
+               ARCH=i486
+               ARCH_FLAGS="-march=i486 -mtune=i686"
+               LIBSUFFIX=""
+               ;;
+            arm*)
+               ARCH=arm
+               ARCH_FLAGS="-march=arm4vt"
+               LIBSUFFIX=""
+               ;;
+            *)
+               tprintf $"@warning{Warning!}: ARCH not detected, using 'native'\n"
+               ARCH=native
+               ARCH_FLAGS=""
+               LIBSUFFIX=""
+               ;;
+         esac
+         ;;
+      *)
+         tprintf $"@error{Error!}: %s is not a valid package style\n" "$PKG_STYLE"
+         exit 1
+         ;;
+   esac
+fi
+
+source "$SRC2PKG_NG_DIR/cleanup"
+source "$SRC2PKG_NG_DIR/rpm_utils"
+source "$SRC2PKG_NG_DIR/prepare_src"
+source "$SRC2PKG_NG_DIR/build_src"
+source "$SRC2PKG_NG_DIR/create_pkg"
+
+set_pkg_policy_$PKG_POLICY
+
+source "$SRC2PKG_NG_SCRIPT" "$@"
+
+cleanup

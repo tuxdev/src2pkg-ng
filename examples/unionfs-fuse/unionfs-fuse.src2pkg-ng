@@ -1,0 +1,31 @@
+#!/usr/bin/env src2pkg-ng
+
+NAME="unionfs-fuse"
+VERSION="0.23"
+BUILD="1"
+
+BRIEF="Unioning file system for FUSE"
+DESC="A FUSE-based implementation of UnionFS."
+HOMEPAGE="http://podgorny.cz/moin/UnionFsFuse/"
+
+fetch_src "http://podgorny.cz/unionfs-fuse/releases/unionfs-fuse-$VERSION.tar.bz2"
+SRC="$RET_SOURCE"
+check_md5sum "$RET_SOURCE" "479f06c81c49c9c5b4340df44426c52a"
+
+make_dir src
+SRC_DIR="$RET_DIR"
+unpack_archive "$SRC" "$SRC_DIR"
+fixup_src "$SRC_DIR"
+
+SANDBOX="$SRC2PKG_NG_DIR/sandbox/dummy"
+export WARN_DUMMY_SANDBOX=0
+configure_src auto "$SRC_DIR"
+compile_src auto "$SRC_DIR"
+make_dir pkg
+PKG_DIR="$RET_DIR"
+export DESTDIR="$PKG_DIR"
+safe_install auto "$SRC_DIR" "$PKG_DIR"
+install_extra "$SRC_DIR" "$PKG_DIR"
+
+fixup_pkg "$PKG_DIR"
+make_pkg "$PKG_DIR"

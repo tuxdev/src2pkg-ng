@@ -1,0 +1,23 @@
+#!/usr/bin/env src2pkg-ng
+
+NAME="src2pkg-ng"
+VERSION="0.0.1"
+BUILD="1"
+
+BRIEF="Package creation toolkit"
+DESC="src2pkg-ng builds packages from source code as directed by a shell script"
+HOMEPAGE="http://src2pkg.net/"
+
+make_dir pkg
+PKG_DIR="$RET_DIR"
+cp -ar root/* "$PKG_DIR"
+./makemo
+mkdir -p "$PKG_DIR/usr/share"
+cp -ar locale "$PKG_DIR/usr/share"
+install_docs "." "$PKG_DIR"
+cp -a "SCRIPTING_API" "$PKG_DIR/$DOC_DIR"
+./makepot
+cp -a "src2pkg-ng.pot" "$PKG_DIR/$DOC_DIR"
+cp -ar "examples" "$PKG_DIR/$DOC_DIR"
+fixup_pkg "$PKG_DIR"
+make_pkg "$PKG_DIR"

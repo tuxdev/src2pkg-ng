@@ -1,0 +1,38 @@
+# A list of all valid keyboard symbols can be found in
+# /usr/include/X11/keysym.h, keysymdefs.h, XF86keysym.h, ...
+# You'll have to omit XK_ prefixs and to replace XF86XK_ prefixes by
+# XF86. Valid modifiers are Alt, Ctrl, Shift, Meta, Super and Hyper.
+
+key "Super+t" rxvt -fn 6x13 -bg black -cr green -fg white -C
+key "Super+f" pcmanfm
+key "Super+n" firefox
+key "Super+e" rxvt -fn 6x13 -bg black -cr green -fg white -C -e vim
+
+key "Ctrl+Alt+c" xmms -t
+key "Ctrl+Alt+x" xmms -s
+key "Ctrl+Alt+v" xmms -f
+key "Ctrl+Alt+z" xmms -r
+
+key "Super+KP_Divide"   amixer set Master 2-% > /dev/null
+key "Super+KP_Multiply" amixer set Master 2+% > /dev/null
+
+# "Multimedia key" bindings for XFree86. Gather the keycodes of your
+# advanced function keys by watching the output of the xev command whilest
+# pressing those keys and map those symbols by using xmodmap.
+
+key "XF86ScreenSaver"       xlock -mode blank
+#key "XF86MonBrightnessUp"   xbacklight +15
+#key "XF86MonBrightnessDown" xbacklight -10
+#key "XF86Suspend"           sudo /etc/acpi/suspend.sh
+#key "XF86Hibernate"         sudo /etc/acpi/hibernate.sh
+key "XF86AudioLowerVolume"  amixer set Master 2-% > /dev/null
+key "XF86AudioRaiseVolume"  amixer set Master 2+% > /dev/null
+key "XF86AudioMute"         amixer set Master toggle
+key "XF86AudioPlay"         xmms -t
+key "XF86AudioStop"         xmms -s
+key "XF86AudioNext"         xmms -f
+key "XF86AudioPrev"         xmms -r
+key "XF86HomePage"          firefox -noraise -remote openHomepage
+key "XF86Mail"	             firefox -noraise -remote openURL(http://www.gmail.com) 
+key "XF86Search"            firefox -noraise -remote openURL(http://www.google.com/)
+key "XF86Eject"             eject

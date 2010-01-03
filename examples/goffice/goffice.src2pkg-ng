@@ -1,0 +1,33 @@
+#!/usr/bin/env src2pkg-ng
+
+NAME="goffice"
+VERSION="0.7.15"
+BUILD="1"
+
+BRIEF="Document utilities"
+DESC="GOffice is a glib/gtk set of document centric objects and utilities."
+HOMEPAGE="http://ftp.gnome.org/pub/GNOME/sources/goffice/"
+
+AUTOPATCH=0
+
+fetch_src "http://ftp.acc.umu.se/pub/GNOME/sources/goffice/${VERSION%.*}/goffice-$VERSION.tar.bz2"
+SRC="$RET_SOURCE"
+check_md5sum "$RET_SOURCE" "eea7ca4a41e4fa8829ca5d93b1781279"
+
+make_dir src
+SRC_DIR="$RET_DIR"
+unpack_archive "$SRC" "$SRC_DIR"
+if ! [[ -f "/$INCLUDE_DIR/libgsf-1/gsf/gsf-input-gio.h" ]] ; then
+   apply_patch "without_gio.patch" "$SRC_DIR"
+fi
+fixup_src "$SRC_DIR"
+
+configure_src auto "$SRC_DIR" --without-gconf
+compile_src auto "$SRC_DIR"
+make_dir pkg
+PKG_DIR="$RET_DIR"
+safe_install auto "$SRC_DIR" "$PKG_DIR"
+install_extra "$SRC_DIR" "$PKG_DIR"
+
+fixup_pkg "$PKG_DIR"
+make_pkg "$PKG_DIR"

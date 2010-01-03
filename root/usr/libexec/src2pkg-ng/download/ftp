@@ -1,0 +1,83 @@
+#!bash
+# vim:ff=unix:enc=utf8:ts=3:sw=3:et
+
+# src2pkg-ng - package creation toolkit
+# Copyright (C) 2005-2009 Gilbert Ashley
+# Copyright (C) 2009 Timothy Goya
+
+# src2pkg-ng is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2 as 
+# published by the Free Software Foundation
+
+# src2pkg-ng is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with src2pkg-ng.  If not, see <http://www.gnu.org/licenses/>.
+
+download_ftp() {
+   declare url="$1"
+   if which wget > /dev/null 2>&1 ; then
+      wget -q -O - "$url"
+   elif which curl > /dev/null 2>&1 ; then
+      curl -s -S "$url"
+   elif which lynx > /dev/null 2>&1 ; then
+      lynx -source "$url"
+   # FIXME: Create nc and telnet downloaders
+   # FIXME: Figure out another way to determine net redirects support
+   elif cat < "/dev/tcp/time.nist.gov/13" > /dev/null 2>&1 ; then
+      declare host="${url#"ftp://"}"
+      declare loc="${host#*/}"
+      host="${host%%/*}"
+      declare port="${host##*:}"
+      if [[ "$port" = "$host" ]] ; then
+         port="21"
+      fi
+      host="${host%:*}"
+      declare code=""
+      declare reason=""
+      read_reply() {
+         code="1"
+         while [[ "$code" = 1* ]] ; do
+            IFS=" " read -r -u $fd code reason 
+            reason=${reason%$'\r'}
+         done
+         if [[ "$code" = 2* || "$code" == 3* ]] ; then
+            return 0
+         fi
+         eval "exec $fd>&-"
+         return 1
+      }
+      declare fd=3
+      while [[ -L "/dev/fd/$fd" ]] ; do
+         (( ++fd ))
+      done
+      eval "exec $fd<>\"/dev/tcp/\$host/\$port\""
+      read_reply
+      echo "USER anonymous" >&$fd
+      read_reply
+      echo "PASS anonymous@" >&$fd
+      read_reply
+      echo "TYPE I" >&$fd
+      read_reply
+      echo "PASV" >&$fd
+      read_reply
+      unset -f read_reply
+      declare h1=""
+      declare h2=""
+      declare h3=""
+      declare h4=""
+      declare p1=""
+      declare p2=""
+      IFS=",()" read -r _ h1 h2 h3 h4 p1 p2 <<< "$reason"
+      declare data_host="$h1.$h2.$h3.$h4"
+      declare data_port=$(( p1 * 256 + p2 ))
+      echo "RETR $loc" >&$fd
+      cat < "/dev/tcp/$data_host/$data_port"
+      echo "QUIT" >&$fd
+      eval "exec $fd>&-"
+      return 0
+   fi
+}

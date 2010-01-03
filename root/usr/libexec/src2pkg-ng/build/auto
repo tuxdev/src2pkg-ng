@@ -1,0 +1,62 @@
+#!bash
+# vim:ff=unix:enc=utf8:ts=3:sw=3:et
+
+# src2pkg-ng - package creation toolkit
+# Copyright (C) 2005-2009 Gilbert Ashley
+# Copyright (C) 2009 Timothy Goya
+
+# src2pkg-ng is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2 as 
+# published by the Free Software Foundation
+
+# src2pkg-ng is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with src2pkg-ng.  If not, see <http://www.gnu.org/licenses/>.
+
+detect_build_type() {
+   declare config_dir="$1"
+   shift 1
+   declare type=""
+   for type in "$@" ; do
+      if is_build_$type "$config_dir" ; then
+         echo "$type"
+         return
+      fi
+   done
+   echo "none"
+}
+
+configure_cmd_auto() {
+   declare config_dir="$1"
+   shift 1
+
+   tprintf $"@summary{Detecting configure type}: "
+   configure_type="$(detect_build_type "$config_dir" "${CONFIGURE_TYPES[@]}")"
+   echo "$configure_type"
+   configure_cmd_$configure_type "$config_dir" "$@"
+}
+
+compile_cmd_auto() {
+   declare config_dir="$1"
+   shift 1
+
+   tprintf $"@summary{Detecting compile type}: "
+   compile_type="$(detect_build_type "$config_dir" "${COMPILE_TYPES[@]}")"
+   echo "$compile_type"
+   compile_cmd_$compile_type "$config_dir" "$@"
+}
+
+install_cmd_auto() {
+   declare config_dir="$1"
+   declare pkg_dir="$2"
+   shift 2
+
+   tprintf $"@summary{Detecting install type}: "
+   install_type="$(detect_build_type "$config_dir" "${INSTALL_TYPES[@]}")"
+   echo "$install_type"
+   install_cmd_$install_type "$config_dir" "$pkg_dir" "$@"
+}

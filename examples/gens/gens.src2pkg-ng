@@ -1,0 +1,28 @@
+#!/usr/bin/env src2pkg-ng
+
+NAME="gens"
+VERSION="2.15.5"
+BUILD="1"
+
+BRIEF="Sega Genesis Emulator"
+DESC="Gens is a win32/unix Sega Genesis / Sega CD / Sega 32X emulator."
+HOMEPAGE="http://sourceforge.net/projects/gens/"
+
+fetch_src "http://downloads.sourceforge.net/gens/Gens Source Code/Gens $VERSION/gens-$VERSION.tar.gz"
+SRC="$RET_SOURCE"
+check_md5sum "$RET_SOURCE" "1496a49be056d65bf76b52de62e932d7"
+
+make_dir src
+SRC_DIR="$RET_DIR"
+unpack_archive "$SRC" "$SRC_DIR"
+fixup_src "$SRC_DIR"
+
+configure_src auto "$SRC_DIR"
+compile_src auto "$SRC_DIR"
+make_dir pkg
+PKG_DIR="$RET_DIR"
+safe_install auto "$SRC_DIR" "$PKG_DIR"
+install_extra "$SRC_DIR" "$PKG_DIR"
+
+fixup_pkg "$PKG_DIR"
+make_pkg "$PKG_DIR" "$NAME"

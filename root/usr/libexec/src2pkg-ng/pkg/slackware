@@ -1,0 +1,253 @@
+#!bash
+# vim:ff=unix:enc=utf8:ts=3:sw=3:et
+
+# src2pkg-ng - package creation toolkit
+# Copyright (C) 2005-2009 Gilbert Ashley
+# Copyright (C) 2009 Timothy Goya
+
+# src2pkg-ng is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2 as 
+# published by the Free Software Foundation
+
+# src2pkg-ng is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with src2pkg-ng.  If not, see <http://www.gnu.org/licenses/>.
+
+if [[ -z "${PKG_FORMAT:-""}" && -f "/etc/slackware-version" ]] ; then
+   PKG_FORMAT="slackware"
+fi
+if [[ -z "${PKG_POLICY:-""}" && "${PKG_FORMAT:-""}" == "slackware" ]] ; then
+   PKG_POLICY="slackware"
+fi
+if [[ -z "${PKG_COMPRESSION:-""}" && "${PKG_FORMAT:-""}" == "slackware" ]] ; then
+   if grep -Fq "txz" /sbin/installpkg ; then
+      PKG_COMPRESSION="xz"
+   elif grep -Fq "tlz" /sbin/installpkg ; then
+      PKG_COMPRESSION="lzma"
+   elif grep -Fq "tbz" /sbin/installpkg ; then
+      PKG_COMPRESSION="bzip2"
+   else
+      PKG_COMPRESSION="gzip"
+   fi
+fi
+
+set_pkg_policy_slackware() {
+   BIN_DIR="$PRE_FIX/bin"
+   SBIN_DIR="$PRE_FIX/sbin"
+   LIBEXEC_DIR="$PRE_FIX/libexec"
+   SYSCONF_DIR="etc"
+   SHAREDSTATE_DIR="var/log"
+   LOCALSTATE_DIR="var"
+   LIB_DIR="$PRE_FIX/lib$LIBSUFFIX"
+   INCLUDE_DIR="$PRE_FIX/include"
+   DATA_DIR="$PRE_FIX/share"
+   LOCALE_DIR="$DATA_DIR/locale"
+   GAMESBIN_DIR="$BIN_DIR"
+   GAMESDATA_DIR="$DATA_DIR"
+   DOC_DIR="$PRE_FIX/doc/$NAME-$VERSION"
+   MAN_DIR="$PRE_FIX/man"
+   INFO_DIR="$PRE_FIX/info"
+   PIXMAPS_DIR="$DATA_DIR/pixmaps"
+   ICONS_DIR="$DATA_DIR/icons"
+}
+
+make_pkg_slackware() {
+   declare pkg_dir="$1"
+   declare pkg_name="$2"
+   declare tar=""
+   if which tar-1.13 > /dev/null 2>&1 ; then
+      tar="$(which tar-1.13)"
+   else
+      tar="$(which tar)"
+      tprintf $"@warning{Warning!}: No tar-1.13 found in the PATH.\n"
+      echo $"Cannot build true Slackware-compatible packages"
+   fi
+   if [[ "$PKG_POLICY" != "slackware" ]] ; then
+      tprintf $"@warning{Warning!}: Package structure policy not 'slackware'.\n"
+      echo $"Package may not properly comply with Slackware conventions"
+   fi
+   mkdir -p "$pkg_dir/metadata/install"
+   if [[ -f "$SOURCES_DIR/slack-desc" ]] ; then
+      cp "$SOURCES_DIR/slack-desc" "$pkg_dir/metadata/install/slack-desc"
+   else
+      make_slackware_desc "$pkg_dir" "$pkg_name" "$pkg_dir/metadata/install/slack-desc"
+   fi
+   if [[ -f "$SOURCES_DIR/doinst.sh" ]] ; then
+      cp "$SOURCES_DIR/doinst.sh" "$pkg_dir/metadata/install/doinst.sh"
+   else
+      make_doinst "$pkg_dir" "$pkg_dir/metadata/install/doinst.sh"
+   fi
+   cp -r "$pkg_dir/metadata/install" "$pkg_dir"
+   declare pkg="$PKG_DEST_DIR/$pkg_name-$VERSION-$ARCH-$BUILD$TAG"
+   case "$PKG_COMPRESSION" in
+      gzip)
+         pkg="$pkg.tgz"
+      ;;
+      bzip2)
+         pkg="$pkg.tbz"
+      ;;
+      lzma)
+         pkg="$pkg.tlz"
+      ;;
+      xz)
+         pkg="$pkg.txz"
+      ;;
+      *)
+         tprintf $"@error{Error!}: Unsupported compression for Slackware package\n"
+         cleanup 1
+      ;;
+   esac
+   if ! "$tar" --owner=root --group=root -c --use-compress-program "$PKG_COMPRESSION" -C "$pkg_dir" -f "$pkg" . --exclude "metadata" ; then
+      tprintf $"@error{Error!}: Creating Slackware package tarball failed\n"
+      cleanup 1
+   fi
+   tprintf $"@summary{Package Creation} - @success{Successful!} Package location\n"
+   echo "$pkg"
+}
+
+make_slackware_desc() {
+   declare pkg_dir="$1"
+   declare pkg_name="$2"
+   declare desc_file="$3"
+   declare line=""
+   if [[ "$BRIEF" ]] ; then
+      line="$pkg_name: $pkg_name ($BRIEF)"
+      if (( ${#line} > 80 )) ; then
+         tprintf $"@warning{Warning!}: BRIEF too long, line in description exceeds 80 characters\n"
+      fi
+   else
+      line="$pkg_name: $pkg_name"
+   fi
+   echo "$line" > "$desc_file"
+   echo "$pkg_name:" >> "$desc_file"
+   declare line_limit=8
+   if [[ -z "$HOMEPAGE" ]] ; then
+      (( ++line_limit ))
+   fi
+   declare width=$((78-${#pkg_name}))
+   while [[ "$DESC" ]] ; do
+      if (( line_limit == 0 )) ; then
+         tprintf $"@warning{Warning!}: DESC too long, truncating\n"
+         break
+      fi
+      declare chunk="${DESC:0:$width}"
+      if (( ${#chunk} == $width )) ; then
+         chunk=${chunk% *}
+      fi
+      echo "$pkg_name: $chunk" >> "$desc_file"
+      (( --line_limit ))
+      DESC="${DESC:${#chunk}}"
+      DESC="${DESC# *}"
+   done
+   while (( line_limit > 2 )) ; do
+      echo "$pkg_name:" >> "$desc_file"
+      (( --line_limit ))
+   done
+   echo "$pkg_name:" >> "$desc_file"
+   if [[ "$HOMEPAGE" ]] ; then
+      line="$pkg_name: Homepage: $HOMEPAGE"
+      if (( ${#line} > 80 )) ; then
+         tprintf $"@warning{Warning!}: HOMEPAGE too long, line exceeds 80 characters\n"
+      fi
+      echo "$line" >> "$desc_file"
+   fi
+   line="$pkg_name: Packaged by $PACKAGER"
+   if (( ${#line} > 80 )) ; then
+      tprintf $"@warning{Warning!}: PACKAGER too long, line exceeds 80 characters\n"
+   fi
+   echo "$line" >> "$desc_file"
+}
+
+make_doinst() {
+   declare pkg_dir="$1"
+   declare doinst_file="$2"
+   echo "#!/bin/sh" > "$doinst_file"
+   if [[ -e "$SOURCES_DIR/doinst.prepend" ]] ; then
+      cat "$SOURCES_DIR/doinst.prepend" >> "$doinst_file"
+   fi
+   if [[ -d "$pkg_dir/$SYSCONF_DIR" ]] ; then
+      cat >> "$doinst_file" << "EOF"
+config() {
+   NEW="$1"
+   OLD="`dirname $NEW`/`basename $NEW .new`"
+   if [ ! -r "$OLD" ] ; then
+      mv "$NEW" "$OLD"
+   elif [ "`md5sum < $OLD`" = "`md5sum < $NEW`" ] ; then
+      rm "$NEW"
+   fi
+}
+EOF
+      declare conf=""
+      for conf in $(find "$pkg_dir/$SYSCONF_DIR" -type f); do
+         cat >> "$doinst_file" << EOF
+config "${conf#$pkg_dir/}.new"
+EOF
+         mv "$conf" "$conf.new"
+      done
+   fi
+   declare link=""
+   for link in $(find "$pkg_dir" -type l) ; do
+      cat >> "$doinst_file" << EOF
+( cd "$(dirname ${link#$pkg_dir/})" ; rm -rf "${link##*/}" )
+( cd "$(dirname ${link#$pkg_dir/})" ; ln -sf "$(readlink $link)" "${link##*/}" )
+EOF
+      rm -f "$link"
+   done
+   if [[ -f "$pkg_dir/$SYSCONF_DIR/rc.d/rc.$NAME.new" ]] ; then
+      cat >> "$doinst_file" << EOF
+if grep -Fq "rc.$NAME" "/$SYSCONF_DIR/rc.d/rc.local" ; then
+   echo '# Start $NAME service' >> "/$SYSCONF_DIR/rc.d/rc.local"
+   echo 'if [ -x "/$SYSCONF_DIR/rc.d/rc.$NAME" ] ; then' >> "/$SYSCONF_DIR/rc.d/rc.local"
+   echo '   . "/$SYSCONF_DIR/rc.d/rc.$NAME" start' >> "/$SYSCONF_DIR/rc.d/rc.local"
+   echo 'fi' >> "/$SYSCONF_DIR/rc.d/rc.local"
+fi
+EOF
+   fi
+   if [[ -d "$pkg_dir/$INFO_DIR" ]] ; then
+      cat >> "$doinst_file" << EOF
+if [ -x "/$BIN_DIR/install-info" ] ; then
+EOF
+      declare info=""
+      for info in $(ls -1 "$pkg_dir/$INFO_DIR") ; do
+         cat >> "$doinst_file" << EOF
+   install-info --info-dir "/$INFO_DIR" "/$INFO_DIR/$INFO" 2> /dev/null
+EOF
+      done
+      cat >> "$doinst_file" << EOF
+fi
+EOF
+   fi
+   if [[ -d "$pkg_dir/$DATA_DIR/applications" && $(find "$pkg_dir/$DATA_DIR/applications" -type f) ]] ; then
+      cat >> "$doinst_file" << EOF
+if [ -x "/$BIN_DIR/update-desktop-database" ] ; then
+   /$BIN_DIR/update-desktop-database "/$DATA_DIR/applications" > /dev/null 2>&1
+fi
+EOF
+   fi
+   if [[ -d "$pkg_dir/$ICONS_DIR" ]] ; then
+      cat >> "$doinst_file" << EOF
+if [ -x "/$BIN_DIR/gtk-icon-cache" ] ; then
+   /$BIN_DIR/gtk-icon-cache --quiet "/$ICONS_DIR"
+fi
+EOF
+   fi
+   if [[ -d "$pkg_dir/$DATA_DIR/mime" ]] ; then
+      cat >> "$doinst_file" << EOF
+if [ -x \"/$BIN_DIR/update-mime-database\" ] ; then
+   /$BIN_DIR/update-mime-database \"/$DATA_DIR/mime\"
+fi
+EOF
+   fi
+   if [[ -e "$SOURCES_DIR/doinst.append" ]] ; then
+      cat "$SOURCES_DIR/doinst.append" >> "$doinst_file"
+   fi
+   if [[ "$(cat "$doinst_file")" == "#!/bin/sh" ]] ; then
+      rm "$doinst_file"
+   else
+      chmod +x "$doinst_file"
+   fi
+}
