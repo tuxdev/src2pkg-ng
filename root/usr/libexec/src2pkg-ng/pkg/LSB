@@ -30,7 +30,7 @@ set_pkg_policy_LSB() {
    LOCALE_DIR="$DATA_DIR/locale"
    GAMESBIN_DIR="$PRE_FIX/games/bin"
    GAMESDATA_DIR="$DATA_DIR/games"
-   DOC_DIR="$DATA_DIR/doc/$NAME-$VERSION"
+   DOC_DIR="$DATA_DIR/doc/$NAME"
    MAN_DIR="$DATA_DIR/man"
    INFO_DIR="$DATA_DIR/info"
    PIXMAPS_DIR="$DATA_DIR/share/pixmaps"

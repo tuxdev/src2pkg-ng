@@ -80,6 +80,7 @@ merge_dirs() {
 fix_doc() {
    declare pkg_dir="$1"
    declare doc_dirs=()
+   push_back doc_dirs "usr/share/doc/$NAME"
    push_back doc_dirs "usr/share/doc/$NAME-$VERSION"
    push_back doc_dirs "usr/doc/$NAME-$VERSION"
    tprintf $"@summary{Fixing doc dirs} - "
