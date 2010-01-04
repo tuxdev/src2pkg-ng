@@ -14,23 +14,17 @@ menu Utilities folder
    prog PCManFM /usr/share/pixmaps/pcmanfm.png pcmanfm
    prog emelFM2 /usr/share/pixmaps/emelfm2/emelfm2_32.png emelfm2
    prog XKill bomb xkill
-   prog XPkgTool none xpkgtool
-   prog GSlapt none gslapt
 }
 
 menu Games folder
 {
-   prog SuperTux /usr/share/supertux/images/icon.xpm supertux
-   prog LBreakout2 none lbreakout2
    prog EBoard /usr/share/pixmaps/chess.png eboard
-   prog "Frozen Bubble" /usr/share/icons/hicolor/32x32/apps/frozen-bubble.png frozen-bubble
-   prog "Chromium B.S.U." /usr/share/pixmaps/chromium.png chromium
+   prog "Chromium B.S.U." /usr/share/pixmaps/chromium-bsu.png chromium-bsu
    prog Maelstrom /usr/games/Maelstrom/icon.xpm Maelstrom
 }
 
 menu Multimedia folder
 {
-   prog X-CD-Roast none xcdroast -n
    prog Asunder /usr/share/pixmaps/asunder.png asunder
    prog Aumix none aumix
    prog XMMS xmms xmms
@@ -42,7 +36,6 @@ menu Multimedia folder
    prog Gimp gimp gimp
    prog Blender /usr/share/pixmaps/blender.png blender
    prog Xine /usr/share/pixmaps/xine.xpm xine
-   prog XawTV none xawtv
 }
 
 menu Net folder
@@ -52,7 +45,7 @@ menu Net folder
    prog Xchat /usr/share/pixmaps/xchat.png xchat
    prog Transmission /usr/share/pixmaps/transmission.png transmission
    prog Dillo none dillo
-
+   prog Arora /usr/share/pixmaps/arora.xpm arora
    prog Firefox /usr/share/pixmaps/firefox.png firefox
    prog Thunderbird /usr/share/pixmaps/thunderbird.png thunderbird
 }
@@ -62,11 +55,8 @@ menu Office folder
    prog OpenOffice.org /usr/share/pixmaps/openofficeorg-21-writer.png soffice --writer
    prog KOffice none koffice
    prog Abiword /usr/share/icons/abiword_48.png abiword
-   prog Grisbi /usr/share/pixmaps/grisbi/grisbi.png grisbi
-   prog Gnucash /usr/share/pixmaps/gnucash/gnucash-icon.png gnucash
    prog Gnumeric /usr/share/pixmaps/gnome-gnumeric.png gnumeric
    prog Abs none abs
-   prog TkNotebad none tkn+
    prog LyX /usr/share/lyx/images/lyx.png lyx
    prog Xpdf pdf xpdf
    prog XSane /usr/share/sane/xsane/xsane-logo.xpm xsane

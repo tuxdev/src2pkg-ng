@@ -1,0 +1,28 @@
+#!/usr/bin/env src2pkg-ng
+
+NAME="arora"
+VERSION="0.10.2"
+BUILD="1"
+
+BRIEF="Lightweight WebKit Browser"
+DESC="Arora is a lightweight cross-platform web browser. It's free (as in free speech and free beer). Arora runs on Linux, embedded Linux, FreeBSD, Mac OS X, Windows, Haiku, and any other platforms supported by the Qt toolkit."
+HOMEPAGE="http://code.google.com/p/arora/"
+
+fetch_src "http://arora.googlecode.com/files/arora-$VERSION.tar.gz"
+SRC="$RET_SOURCE"
+check_md5sum "$RET_SOURCE" "ccef0f214e0f03828cde8c521f7a5225"
+
+make_dir src
+SRC_DIR="$RET_DIR"
+unpack_archive "$SRC" "$SRC_DIR"
+fixup_src "$SRC_DIR"
+
+configure_src auto "$SRC_DIR"
+compile_src auto "$SRC_DIR"
+make_dir pkg
+PKG_DIR="$RET_DIR"
+safe_install auto "$SRC_DIR" "$PKG_DIR"
+install_extra "$SRC_DIR" "$PKG_DIR"
+
+fixup_pkg "$PKG_DIR"
+make_pkg "$PKG_DIR"
