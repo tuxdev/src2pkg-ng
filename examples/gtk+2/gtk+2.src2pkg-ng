@@ -1,0 +1,32 @@
+#!/usr/bin/env src2pkg-ng
+
+NAME="gtk+2"
+VERSION="2.19.2"
+BUILD="1"
+
+BRIEF="multi-platform GUI toolkit"
+DESC="This is GTK+, a multi-platform toolkit for creating graphical user interfaces. Offering a complete set of widgets, GTK+ is suitable for projects ranging from small one-off projects to complete application suites."
+HOMEPAGE="http://www.gtk.org/"
+
+fetch_resources "file://examples/gtk+2"
+fetch_src "ftp://ftp.gtk.org/pub/gtk/${VERSION%.*}/gtk+-$VERSION.tar.bz2"
+SRC="$RET_SOURCE"
+check_md5sum "$RET_SOURCE" "c7b4997a13f644a45349a6a22a21e577"
+
+make_dir src
+SRC_DIR="$RET_DIR"
+unpack_archive "$SRC" "$SRC_DIR"
+fixup_src "$SRC_DIR"
+
+configure_src auto "$SRC_DIR"
+compile_src auto "$SRC_DIR"
+make_dir pkg
+PKG_DIR="$RET_DIR"
+safe_install auto "$SRC_DIR" "$PKG_DIR"
+mkdir -p "$PKG_DIR/etc/profile.d"
+install "$SOURCES_DIR/gtk+.sh" "$SOURCES_DIR/gtk+.csh" "$PKG_DIR/etc/profile.d"
+install "$SOURCES_DIR/update-gdk-pixbuf-loaders" "$SOURCES_DIR/update-gtk-immodules" "$PKG_DIR/usr/bin"
+install_extra "$SRC_DIR" "$PKG_DIR"
+
+fixup_pkg "$PKG_DIR"
+make_pkg "$PKG_DIR"

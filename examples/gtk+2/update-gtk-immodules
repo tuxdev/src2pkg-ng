@@ -1,0 +1,88 @@
+#!/bin/sh
+# vim:ff=unix:enc=utf8:ts=3:sw=3:et
+# Updates the gtk.immodules in /etc/gtk-2.0/$host
+
+umask 022
+
+# Get the machine type from uname:
+host="$(uname -m)-slackware-linux"
+
+# Fix $host for arm arch:
+case "$host" in
+   arm*) host=arm-slackware-linux-gnueabi ;;
+esac
+
+# Deriving /etc/gtk-2.0/$host location
+#
+# We have had problems in the past with build systems
+# changing host from i386 to i686 and appending/dropping
+# the -gnu suffix, so try to match up the $host we got
+# with whats actually there.
+if ! test -d "/etc/gtk-2.0/$host" ; then 
+   case "$host" in
+      i?86*) 
+         for d in /etc/gtk-2.0/i?86*; do
+            if test -d "$d" ; then
+               host="${d##*/}"
+               break
+            fi
+         done
+         ;;
+   esac
+fi 
+
+file="/etc/gtk-2.0/$host/gtk.immodules"
+
+case "$host" in
+   s390x* | x86_64*)
+      if test -x /usr/bin/gtk-query-immodules-2.0-64 ; then
+         if test "$1" = "--verbose" ; then
+            echo "Updating gtk.immodules for $host:"
+            echo "  /usr/bin/gtk-query-immodules-2.0-64 \\"
+            echo "  > \"$file\""
+         fi
+         /usr/bin/gtk-query-immodules-2.0-64 > "$file"
+         # Check for x86_64 multilib:
+         mlhost=""
+         for d in /etc/gtk-2.0/i?86*; do
+            if test -d "$d" ; then
+               mlhost="${d##*/}"
+               break
+            fi
+         done
+         if test "$mlhost" && test -r "/etc/gtk-2.0/$mlhost/gtk.immodules" && test -x /usr/bin/gtk-query-immodules-2.0-32 ; then
+            file="/etc/gtk-2.0/$mlhost/gtk.immodules"
+            if test "$1" = "--verbose" ; then
+               echo "Updating gtk.immodules for $mlhost:"
+               echo "  /usr/bin/gtk-query-immodules-2.0-64 \\"
+               echo "  > \"$file\""
+            fi
+            /usr/bin/gtk-query-immodules-2.0-32 > $file
+         fi
+      else
+         if test "$1" = "--verbose" ; then
+            echo "Updating gtk.immodules for $host:"
+            echo "  /usr/bin/gtk-query-immodules-2.0-64 \\"
+            echo "  > \"$file\""
+         fi
+         /usr/bin/gtk-query-immodules-2.0 > "$file"
+      fi
+      ;;
+   *)
+      if test -x /usr/bin/gtk-query-immodules-2.0-32 ; then
+         if test "$1" = "--verbose" ; then
+            echo "Updating gtk.immodules for $host:"
+            echo "  /usr/bin/gtk-query-immodules-2.0-64 \\"
+            echo "  > \"$file\""
+         fi
+         /usr/bin/gtk-query-immodules-2.0-32 > "$file"
+      else
+         if test "$1" = "--verbose" ; then
+            echo "Updating gtk.immodules for $host:"
+            echo "  /usr/bin/gtk-query-immodules-2.0-64 \\"
+            echo "  > \"$file\""
+         fi
+         /usr/bin/gtk-query-immodules-2.0 > "$file"
+      fi
+      ;;
+esac

@@ -8,7 +8,7 @@ BRIEF="Fast and small X11 window manager"
 DESC="A lightweight window manager for the X Window System. Optimized for \"feel\" and speed, not looks. Features multiple workspaces, opaque move/resize, task bar, window list, clock, mailbox, CPU, Network, APM status."
 HOMEPAGE="http://www.icewm.org/"
 
-fetch_resources "file://scripts/icewm"
+fetch_resources "file://examples/icewm"
 fetch_src "http://downloads.sourceforge.net/icewm/icewm-$VERSION.tar.gz"
 SRC="$RET_SOURCE"
 check_md5sum "$RET_SOURCE" "ab0993ad222b84cb42a78c97ea065eec"

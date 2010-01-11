@@ -1,16 +1,16 @@
 #!/usr/bin/env src2pkg-ng
 
 NAME="glib2"
-VERSION="2.22.2"
+VERSION="2.23.1"
 BUILD="1"
 
 BRIEF="library of C routines"
 DESC="GLib is a library which includes support routines for C such as lists, trees, hashes, memory allocation, and many other things."
-#HOMEPAGE="http://www.gtk.org/"
+HOMEPAGE="http://www.gtk.org/"
 
-fetch_src "http://ftp.gnome.org/pub/gnome/sources/glib/${VERSION%.*}/glib-$VERSION.tar.bz2"
+fetch_src "ftp://ftp.gtk.org/pub/glib/${VERSION%.*}/glib-$VERSION.tar.bz2"
 SRC="$RET_SOURCE"
-check_md5sum "$RET_SOURCE" "846a86c74b74d5b16826aa5508940f9b"
+check_md5sum "$RET_SOURCE" "fb637f6122690254097d0b6d470f6ed3"
 
 make_dir src
 SRC_DIR="$RET_DIR"

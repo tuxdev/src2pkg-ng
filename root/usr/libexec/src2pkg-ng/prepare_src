@@ -88,7 +88,7 @@ fetch_resources() {
    declare manifest="$RET_SOURCE"
    declare md5sum=""
    declare file=""
-   while IFS=" " read -r md5sum line ; do
+   while IFS=" " read -r md5sum file ; do
       fetch_src "$resource_url/$file" "$(dirname "$file")"
       check_md5sum "$RET_SOURCE" "$md5sum"
    done < "$manifest"
