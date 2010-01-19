@@ -23,7 +23,7 @@ umask 022
 unalias -a
 unset -f $(declare -F | sed "s/^declare -f //")
 
-while getopts :cw:r:e: OPT ; do
+while getopts :cw:r:e:C: OPT ; do
    case $OPT in
       c)
          DO_CHECK=1

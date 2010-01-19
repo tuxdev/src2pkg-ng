@@ -30,5 +30,5 @@ configure_cmd_cmake() {
    rm -rf "$config_dir/src2pkg-build"
    mkdir "$config_dir/src2pkg-build"
    CONFIG_SUBDIR="$CONFIG_SUBDIR/src2pkg-build"
-   RET_CMD="cmake .. -DCMAKE_INSTALL_PREFIX=\"/$PRE_FIX\" -DCMAKE_INSTALL_ALWAYS=TRUE -DCMAKE_BUILD_TYPE=Release $@"
+   RET_CMD=("cmake" ".." "-DCMAKE_INSTALL_PREFIX=/$PRE_FIX" "-DCMAKE_INSTALL_ALWAYS=TRUE" "-DCMAKE_BUILD_TYPE=Release" "$@")
 }

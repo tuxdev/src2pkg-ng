@@ -52,5 +52,5 @@ configure_cmd_autotools() {
    export pixmapsdir=/$PIXMAPS_DIR
    export iconsdir=/$ICONS_DIR
 
-   RET_CMD="./configure --prefix=\"/$PRE_FIX\" $@"
+   RET_CMD=("./configure" "--prefix=/$PRE_FIX" "$@")
 }

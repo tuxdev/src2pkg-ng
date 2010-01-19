@@ -28,7 +28,7 @@ compile_cmd_make() {
    declare config_dir="$1"
    shift 1
 
-   RET_CMD="make -j $JOBS $@"
+   RET_CMD=("make" "-j" "$JOBS" "$@")
 }
 
 install_cmd_make() {
@@ -36,5 +36,5 @@ install_cmd_make() {
    declare pkg_dir="$2"
    shift 2
 
-   RET_CMD="make $@"
+   RET_CMD=("make" "$@")
 }

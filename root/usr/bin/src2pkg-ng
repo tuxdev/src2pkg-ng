@@ -60,7 +60,7 @@ unset opt
 shift $(( OPTIND - 1 ))
 SRC2PKG_NG_SCRIPT="$1"
 shift 1
-SCRIPT_DIR="$(dirname "$0")"
+SCRIPT_DIR="$(dirname "$SRC2PKG_NG_SCRIPT")"
 if [[ "$SCRIPT_DIR" = /* ]] ; then
    SCRIPT_DIR="$(pwd)/$SCRIPT_DIR"
 fi

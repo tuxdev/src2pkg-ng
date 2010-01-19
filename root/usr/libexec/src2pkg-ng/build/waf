@@ -29,14 +29,14 @@ configure_cmd_waf() {
    declare config_dir="$1"
    shift 1
 
-   RET_CMD="./waf configure $@"
+   RET_CMD=("./waf" "configure" "$@")
 }
 
 compile_cmd_waf() {
    declare config_dir="$1"
    shift 1
 
-   RET_CMD="./waf -j $JOBS $@"
+   RET_CMD=("./waf" "-j" "$JOBS" "$@")
 }
 
 install_cmd_waf() {
@@ -44,5 +44,5 @@ install_cmd_waf() {
    declare pkg_dir="$2"
    shift 2
 
-   RET_CMD="./waf $@"
+   RET_CMD=("./waf" "$@")
 }

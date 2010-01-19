@@ -21,14 +21,14 @@ configure_cmd_none() {
    declare config_dir="$1"
    shift 1
 
-   RET_CMD="true"
+   RET_CMD=("true")
 }
 
 compile_cmd_none() {
    declare config_dir="$1"
    shift 1
 
-   RET_CMD="true"
+   RET_CMD=("true")
 }
 
 install_cmd_none() {
@@ -36,5 +36,5 @@ install_cmd_none() {
    declare pkg_dir="$2"
    shift 2
 
-   RET_CMD="true"
+   RET_CMD=("true")
 }

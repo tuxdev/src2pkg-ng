@@ -31,13 +31,14 @@ configure_src() {
    declare src_dir="$2"
    shift 2
    configure_cmd_$configure_type "$src_dir/$CONFIG_SUBDIR" "$@"
-   declare configure_cmd="$RET_CMD"
+   declare configure_cmd=("${RET_CMD[@]}")
    if [[ "$configure_cmd" ]] ; then
       set +e
       tprintf "@summary{Sandbox self-check}: "
       declare warnings=""
       warnings="$($SANDBOX -c "${DEPS_DIRS[@]/#/-r}" -r "$SYSTEM_DIR" -e /dev -e /proc -e /sys -e /tmp -e /var/tmp -e "$src_dir" 2>&1)"
       declare code=$?
+      set -e
       if (( code == 0 )) ; then
          tprintf $"@success{Passed!}\n"
       else
@@ -49,16 +50,15 @@ configure_src() {
       if (( code != 0 )) ; then
          cleanup $code
       fi
-      set -e
       tprintf $"@summary{Configuring sources using}\n"
-      echo  " $configure_cmd"
+      echo " ${configure_cmd[@]}"
       IFS=$' \n\t'
       set +eu
       CFLAGS="$ARCH_FLAGS" \
       CXXFLAGS="$ARCH_FLAGS" \
       $SANDBOX "${DEPS_DIRS[@]/#/-r}" -r "$SYSTEM_DIR" \
          -e /dev -e /proc -e /sys -e /tmp -e /var/tmp -e "$src_dir" \
-         "$BASH" -c "cd \"$src_dir/$CONFIG_SUBDIR\" && $configure_cmd" > "$src_dir/$NAME-configure.log" 2>&1
+         "$BASH" -c "cd \"$src_dir/$CONFIG_SUBDIR\" && \"\$@\"" "$BASH" "${configure_cmd[@]}" > "$src_dir/$NAME-configure.log" 2>&1
       declare code=$?
       set -eu
       IFS=$'\n'
@@ -78,13 +78,14 @@ compile_src() {
    declare src_dir="$2"
    shift 2
    compile_cmd_$compile_type "$src_dir/$CONFIG_SUBDIR" "$@"
-   declare compile_cmd="$RET_CMD"
+   declare compile_cmd=("${RET_CMD[@]}")
    if [[ "$compile_cmd" ]] ; then
       set +e
       tprintf "@summary{Sandbox self-check}: "
       declare warnings=""
       warnings="$($SANDBOX -c "${DEPS_DIRS[@]/#/-r}" -r "$SYSTEM_DIR" -e /dev -e /proc -e /sys -e /tmp -e /var/tmp -e "$src_dir" 2>&1)"
       declare code=$?
+      set -e
       if (( code == 0 )) ; then
          tprintf $"@success{Passed!}\n"
       else
@@ -96,16 +97,15 @@ compile_src() {
       if (( code != 0 )) ; then
          cleanup $code
       fi
-      set -e
       tprintf $"@summary{Compiling sources using}\n"
-      echo  " $compile_cmd"
+      echo " ${compile_cmd[@]}"
       IFS=$' \n\t'
       set +eu
       CFLAGS="$ARCH_FLAGS" \
       CXXFLAGS="$ARCH_FLAGS" \
       $SANDBOX "${DEPS_DIRS[@]/#/-r}" -r "$SYSTEM_DIR" \
          -e /dev -e /proc -e /sys -e /tmp -e /var/tmp -e "$src_dir" \
-         "$BASH" -c "cd \"$src_dir/$CONFIG_SUBDIR\" && $compile_cmd" > "$src_dir/$NAME-compile.log" 2>&1
+         "$BASH" -c "cd \"$src_dir/$CONFIG_SUBDIR\" && \"\$@\"" "$BASH" "${compile_cmd[@]}" > "$src_dir/$NAME-compile.log" 2>&1
       declare code=$?
       set -eu
       IFS=$'\n'
@@ -130,13 +130,14 @@ safe_install() {
    else
       install_cmd_$install_type "$src_dir/$CONFIG_SUBDIR" "$pkg_dir" "install"
    fi
-   declare install_cmd="$RET_CMD"
+   declare install_cmd=("${RET_CMD[@]}")
    if [[ "$install_cmd" ]] ; then
       set +e
       tprintf "@summary{Sandbox self-check}: "
       declare warnings=""
       warnings="$($SANDBOX -c -w "$pkg_dir" "${DEPS_DIRS[@]/#/-r}" -r "$SYSTEM_DIR" -e /dev -e /proc -e /sys -e /tmp -e /var/tmp -e "$src_dir" 2>&1)"
       declare code=$?
+      set -e
       if (( code == 0 )) ; then
          tprintf $"@success{Passed!}\n"
       else
@@ -148,15 +149,14 @@ safe_install() {
       if (( code != 0 )) ; then
          cleanup $code
       fi
-      set -e
       mkdir -p "$pkg_dir"
       tprintf $"@summary{Installing sources using}\n"
-      echo  " $install_cmd"
+      echo " ${install_cmd[@]}"
       IFS=$' \n\t'
       set +eu
       $SANDBOX -w "$pkg_dir" "${DEPS_DIRS[@]/#/-r}" -r "$SYSTEM_DIR" \
          -e /dev -e /proc -e /sys -e /tmp -e /var/tmp -e "$src_dir" \
-         "$BASH" -c "cd \"$src_dir/$CONFIG_SUBDIR\" && $install_cmd" > "$src_dir/$NAME-install.log" 2>&1
+         "$BASH" -c "cd \"$src_dir/$CONFIG_SUBDIR\" && \"\$@\"" "$BASH" "${install_cmd[@]}" > "$src_dir/$NAME-install.log" 2>&1
       declare code=$?
       set -eu
       IFS=$'\n'

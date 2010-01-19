@@ -27,5 +27,5 @@ configure_cmd_imake() {
    declare config_dir="$1"
    shift 1
 
-   RET_CMD="xmkmf -a $@"
+   RET_CMD=("xmkmf" "-a" "$@")
 }

@@ -29,14 +29,14 @@ configure_cmd_scons() {
    declare config_dir="$1"
    shift 1
 
-   RET_CMD="scons configure $@"
+   RET_CMD=("scons" "configure" "$@")
 }
 
 compile_cmd_scons() {
    declare config_dir="$1"
    shift 1
 
-   RET_CMD="scons -j $JOBS $@"
+   RET_CMD=("scons" "-j" "$JOBS" "$@")
 }
 
 install_cmd_scons() {
@@ -44,5 +44,5 @@ install_cmd_scons() {
    declare pkg_dir="$2"
    shift 2
 
-   RET_CMD="scons $@"
+   RET_CMD=("scons" "$@")
 }
