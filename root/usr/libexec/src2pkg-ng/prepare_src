@@ -48,7 +48,6 @@ fetch_src() {
    declare dir="${2:-"."}"
    declare src_name="${url##*/}"
    declare src="$SOURCES_DIR/$dir/$src_name"
-   echo "$SOURCES_DIR"
    if [[ -L "$src" ]] ; then
       src="$(readlink -f "$src")"
       tprintf $"@summary{Found symlink to source}: %s\n" "$src"
