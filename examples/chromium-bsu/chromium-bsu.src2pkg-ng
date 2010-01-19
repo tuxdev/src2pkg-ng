@@ -8,21 +8,5 @@ BRIEF="Arcade-style vertical shooter"
 DESC="Chromium B.S.U. is a fast paced, arcade-style, top-scrolling shooter. It uses OpenGL for graphics, and OpenAL for sound effects."
 HOMEPAGE="http://chromium-bsu.sourceforge.net/"
 
-fetch_src "http://downloads.sourceforge.net/chromium-bsu/chromium-bsu-$VERSION.tar.gz"
-SRC="$RET_SOURCE"
-check_md5sum "$RET_SOURCE" "26df69b13e2ca370b6b45ac8e9efddd5"
-
-make_dir src
-SRC_DIR="$RET_DIR"
-unpack_archive "$SRC" "$SRC_DIR"
-fixup_src "$SRC_DIR"
-
-configure_src auto "$SRC_DIR"
-compile_src auto "$SRC_DIR"
-make_dir pkg
-PKG_DIR="$RET_DIR"
-safe_install auto "$SRC_DIR" "$PKG_DIR"
-install_extra "$SRC_DIR" "$PKG_DIR"
-
-fixup_pkg "$PKG_DIR"
-make_pkg "$PKG_DIR"
+SOURCE_URL="http://downloads.sourceforge.net/chromium-bsu/chromium-bsu-$VERSION.tar.gz"
+SOURCE_MD5SUM="26df69b13e2ca370b6b45ac8e9efddd5"

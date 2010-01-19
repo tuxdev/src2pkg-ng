@@ -8,21 +8,5 @@ BRIEF="MS Word document import library"
 DESC="wv is a library which allows access to Microsoft Word files. It can load and parse Word 2000, 97, 95 and 6 file formats. (These are the file formats known internally as Word 9, 8, 7 and 6.) There is some support for reading earlier formats as well: Word 2 docs are converted to plaintext."
 HOMEPAGE="http://wvware.sourceforge.net/"
 
-fetch_src "http://downloads.sourceforge.net/project/wvware/wv/$VERSION/wv-$VERSION.tar.gz"
-SRC="$RET_SOURCE"
-check_md5sum "$RET_SOURCE" "c1861c560491f121e12917fa76970ac5"
-
-make_dir src
-SRC_DIR="$RET_DIR"
-unpack_archive "$SRC" "$SRC_DIR"
-fixup_src "$SRC_DIR"
-
-configure_src auto "$SRC_DIR"
-compile_src auto "$SRC_DIR"
-make_dir pkg
-PKG_DIR="$RET_DIR"
-safe_install auto "$SRC_DIR" "$PKG_DIR"
-install_extra "$SRC_DIR" "$PKG_DIR"
-
-fixup_pkg "$PKG_DIR"
-make_pkg "$PKG_DIR"
+SOURCE_URL="http://downloads.sourceforge.net/project/wvware/wv/$VERSION/wv-$VERSION.tar.gz"
+SOURCE_MD5SUM="c1861c560491f121e12917fa76970ac5"

@@ -10,24 +10,26 @@ HOMEPAGE="http://www.cmake.org/"
 
 INSTALL_DESKTOP=0
 
-fetch_src "http://www.cmake.org/files/v${VERSION%.*}/cmake-$VERSION.tar.gz"
-SRC="$RET_SOURCE"
-check_md5sum "$RET_SOURCE" "3b3679b8a6afaedc38a8c15dd7ff4fcf"
+main() {
+   fetch_src "http://www.cmake.org/files/v${VERSION%.*}/cmake-$VERSION.tar.gz"
+   SRC="$RET_SOURCE"
+   check_md5sum "$SRC" "3b3679b8a6afaedc38a8c15dd7ff4fcf"
 
-make_dir src
-SRC_DIR="$RET_DIR"
-unpack_archive "$SRC" "$SRC_DIR"
-fixup_src "$SRC_DIR"
+   make_dir src
+   SRC_DIR="$RET_DIR"
+   unpack_archive "$SRC" "$SRC_DIR"
+   fixup_src "$SRC_DIR"
 
-SANDBOX="$SRC2PKG_NG_DIR/sandbox/dummy"
-export WARN_DUMMY_SANDBOX=0
-configure_src auto "$SRC_DIR" --docdir="${DOC_DIR#$PRE_FIX}"
-compile_src auto "$SRC_DIR"
-make_dir pkg
-PKG_DIR="$RET_DIR"
-export DESTDIR="$PKG_DIR"
-safe_install auto "$SRC_DIR" "$PKG_DIR"
-install_extra "$SRC_DIR" "$PKG_DIR"
+   SANDBOX="$SRC2PKG_NG_DIR/sandbox/dummy"
+   export WARN_DUMMY_SANDBOX=0
+   configure_src auto "$SRC_DIR" --docdir="${DOC_DIR#$PRE_FIX}"
+   compile_src auto "$SRC_DIR"
+   make_dir pkg
+   PKG_DIR="$RET_DIR"
+   export DESTDIR="$PKG_DIR"
+   safe_install auto "$SRC_DIR" "$PKG_DIR"
+   install_extra "$SRC_DIR" "$PKG_DIR"
 
-fixup_pkg "$PKG_DIR"
-make_pkg "$PKG_DIR"
+   fixup_pkg "$PKG_DIR"
+   make_pkg "$PKG_DIR"
+}

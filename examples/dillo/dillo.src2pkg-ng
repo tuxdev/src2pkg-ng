@@ -8,21 +8,23 @@ BRIEF="Light web browser"
 DESC="Dillo aims to be a multiplatform browser alternative that is small, stable, developer-friendly, usable, very fast, and extensible."
 HOMEPAGE="http://www.dillo.org/"
 
-fetch_src "http://www.dillo.org/download/dillo-$VERSION.tar.bz2"
-SRC="$RET_SOURCE"
-check_md5sum "$RET_SOURCE" "93f674f2a42d90a1cdb88a6972325954"
+main() {
+   fetch_src "http://www.dillo.org/download/dillo-$VERSION.tar.bz2"
+   SRC="$RET_SOURCE"
+   check_md5sum "$SRC" "93f674f2a42d90a1cdb88a6972325954"
 
-make_dir src
-SRC_DIR="$RET_DIR"
-unpack_archive "$SRC" "$SRC_DIR"
-fixup_src "$SRC_DIR"
+   make_dir src
+   SRC_DIR="$RET_DIR"
+   unpack_archive "$SRC" "$SRC_DIR"
+   fixup_src "$SRC_DIR"
 
-configure_src auto "$SRC_DIR" --sysconfdir="/$SYSCONF_DIR"
-compile_src auto "$SRC_DIR"
-make_dir pkg
-PKG_DIR="$RET_DIR"
-safe_install auto "$SRC_DIR" "$PKG_DIR"
-install_extra "$SRC_DIR" "$PKG_DIR"
+   configure_src auto "$SRC_DIR" --sysconfdir="/$SYSCONF_DIR"
+   compile_src auto "$SRC_DIR"
+   make_dir pkg
+   PKG_DIR="$RET_DIR"
+   safe_install auto "$SRC_DIR" "$PKG_DIR"
+   install_extra "$SRC_DIR" "$PKG_DIR"
 
-fixup_pkg "$PKG_DIR"
-make_pkg "$PKG_DIR"
+   fixup_pkg "$PKG_DIR"
+   make_pkg "$PKG_DIR"
+}

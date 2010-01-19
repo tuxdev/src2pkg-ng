@@ -8,21 +8,5 @@ BRIEF="documentation metadata library"
 DESC="Rarian is a documentation metadata library based on the proposed Freedesktop.org spec."
 HOMEPAGE="http://rarian.freedesktop.org/"
 
-fetch_src "http://rarian.freedesktop.org/Releases/rarian-$VERSION.tar.bz2"
-SRC="$RET_SOURCE"
-check_md5sum "$RET_SOURCE" "75091185e13da67a0ff4279de1757b94"
-
-make_dir src
-SRC_DIR="$RET_DIR"
-unpack_archive "$SRC" "$SRC_DIR"
-fixup_src "$SRC_DIR"
-
-configure_src auto "$SRC_DIR"
-compile_src auto "$SRC_DIR"
-make_dir pkg
-PKG_DIR="$RET_DIR"
-safe_install auto "$SRC_DIR" "$PKG_DIR"
-install_extra "$SRC_DIR" "$PKG_DIR"
-
-fixup_pkg "$PKG_DIR"
-make_pkg "$PKG_DIR"
+SOURCE_URL="http://rarian.freedesktop.org/Releases/rarian-$VERSION.tar.bz2"
+SOURCE_MD5SUM="75091185e13da67a0ff4279de1757b94"

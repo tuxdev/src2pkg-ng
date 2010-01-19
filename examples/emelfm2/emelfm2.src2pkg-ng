@@ -8,20 +8,22 @@ BRIEF="GTK2 version of emelFM"
 DESC="emelFM2 is a file manager for UNIX-like operating systems. It uses a simple and efficient interface pioneered by Norton Commander, in the 1980s. A built-in command-line, toolbar buttons or assigned keys can be used to initiate commands."
 HOMEPAGE="http://emelfm2.net/"
 
-fetch_src "http://emelfm2.net/rel/emelfm2-$VERSION.tar.bz2"
-SRC="$RET_SOURCE"
-check_md5sum "$RET_SOURCE" "33d3861e23dbce5e2a0cb0e921f9109c"
+main() {
+   fetch_src "http://emelfm2.net/rel/emelfm2-$VERSION.tar.bz2"
+   SRC="$RET_SOURCE"
+   check_md5sum "$SRC" "33d3861e23dbce5e2a0cb0e921f9109c"
 
-make_dir src
-SRC_DIR="$RET_DIR"
-unpack_archive "$SRC" "$SRC_DIR"
-fixup_src "$SRC_DIR"
+   make_dir src
+   SRC_DIR="$RET_DIR"
+   unpack_archive "$SRC" "$SRC_DIR"
+   fixup_src "$SRC_DIR"
 
-compile_src auto "$SRC_DIR" "PREFIX=/$PRE_FIX"
-make_dir pkg
-PKG_DIR="$RET_DIR"
-safe_install auto "$SRC_DIR" "$PKG_DIR" "install" "PREFIX=/$PRE_FIX"
-install_extra "$SRC_DIR" "$PKG_DIR"
+   compile_src auto "$SRC_DIR" "PREFIX=/$PRE_FIX"
+   make_dir pkg
+   PKG_DIR="$RET_DIR"
+   safe_install auto "$SRC_DIR" "$PKG_DIR" "install" "PREFIX=/$PRE_FIX"
+   install_extra "$SRC_DIR" "$PKG_DIR"
 
-fixup_pkg "$PKG_DIR"
-make_pkg "$PKG_DIR"
+   fixup_pkg "$PKG_DIR"
+   make_pkg "$PKG_DIR"
+}

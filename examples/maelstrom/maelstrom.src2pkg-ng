@@ -8,21 +8,5 @@ BRIEF="Asteroids on Steroids"
 DESC="Maelstrom is a rockin' asteroids game ported from the Macintosh. Originally written by Andrew Welch of Ambrosia Software, and ported to UNIX and then SDL by Sam Lantinga <slouken@devolution.com>"
 HOMEPAGE="http://www.devolution.com/~slouken/Maelstrom/"
 
-fetch_src "http://www.devolution.com/~slouken/Maelstrom/src/Maelstrom-$VERSION.tar.gz"
-SRC="$RET_SOURCE"
-check_md5sum "$RET_SOURCE" "4fbeb6070eebdf161bd156b083b8804e"
-
-make_dir src
-SRC_DIR="$RET_DIR"
-unpack_archive "$SRC" "$SRC_DIR"
-fixup_src "$SRC_DIR"
-
-configure_src auto "$SRC_DIR"
-compile_src auto "$SRC_DIR"
-make_dir pkg
-PKG_DIR="$RET_DIR"
-safe_install auto "$SRC_DIR" "$PKG_DIR"
-install_extra "$SRC_DIR" "$PKG_DIR"
-
-fixup_pkg "$PKG_DIR"
-make_pkg "$PKG_DIR"
+SOURCE_URL="http://www.devolution.com/~slouken/Maelstrom/src/Maelstrom-$VERSION.tar.gz"
+SOURCE_MD5SUM="4fbeb6070eebdf161bd156b083b8804e"

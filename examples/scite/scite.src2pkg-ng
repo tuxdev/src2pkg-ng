@@ -8,23 +8,25 @@ BRIEF="SCIntilla Text Editor"
 DESC="SciTE is a SCIntilla based Text Editor. Originally built to demonstrate Scintilla, it has grown to be a generally useful editor with facilities for building and running programs. It is best used for jobs with simple configurations."
 HOMEPAGE="http://www.scintilla.org/SciTE.html"
 
-fetch_src "http://prdownloads.sourceforge.net/scintilla/scite${VERSION//./}.tgz"
-SRC="$RET_SOURCE"
-check_md5sum "$RET_SOURCE" "ef4b6b4d903c29e4ab511488a0d20f46"
+main() {
+   fetch_src "http://prdownloads.sourceforge.net/scintilla/scite${VERSION//./}.tgz"
+   SRC="$RET_SOURCE"
+   check_md5sum "$SRC" "ef4b6b4d903c29e4ab511488a0d20f46"
 
-make_dir src
-SRC_DIR="$RET_DIR"
-unpack_archive "$SRC" "$SRC_DIR"
-fixup_src "$SRC_DIR"
+   make_dir src
+   SRC_DIR="$RET_DIR"
+   unpack_archive "$SRC" "$SRC_DIR"
+   fixup_src "$SRC_DIR"
 
-CONFIG_SUBDIR="scintilla/gtk"
-compile_src auto "$SRC_DIR"
-CONFIG_SUBDIR="scite/gtk"
-compile_src auto "$SRC_DIR"
-make_dir pkg
-PKG_DIR="$RET_DIR"
-safe_install auto "$SRC_DIR" "$PKG_DIR"
-install_extra "$SRC_DIR" "$PKG_DIR"
+   CONFIG_SUBDIR="scintilla/gtk"
+   compile_src auto "$SRC_DIR"
+   CONFIG_SUBDIR="scite/gtk"
+   compile_src auto "$SRC_DIR"
+   make_dir pkg
+   PKG_DIR="$RET_DIR"
+   safe_install auto "$SRC_DIR" "$PKG_DIR"
+   install_extra "$SRC_DIR" "$PKG_DIR"
 
-fixup_pkg "$PKG_DIR"
-make_pkg "$PKG_DIR"
+   fixup_pkg "$PKG_DIR"
+   make_pkg "$PKG_DIR"
+}

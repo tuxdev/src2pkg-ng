@@ -8,21 +8,5 @@ BRIEF="accessibility functions library"
 DESC="atk is a library of accessibility functions that is used by the GTK+-2 toolkit."
 #HOMEPAGE=""
 
-fetch_src "ftp://ftp.gnome.org/pub/GNOME/sources/atk/${VERSION%.*}/atk-$VERSION.tar.bz2"
-SRC="$RET_SOURCE"
-check_md5sum "$RET_SOURCE" "805c6e3b076bedffccfd7e56e7026932"
-
-make_dir src
-SRC_DIR="$RET_DIR"
-unpack_archive "$SRC" "$SRC_DIR"
-fixup_src "$SRC_DIR"
-
-configure_src auto "$SRC_DIR"
-compile_src auto "$SRC_DIR"
-make_dir pkg
-PKG_DIR="$RET_DIR"
-safe_install auto "$SRC_DIR" "$PKG_DIR"
-install_extra "$SRC_DIR" "$PKG_DIR"
-
-fixup_pkg "$PKG_DIR"
-make_pkg "$PKG_DIR"
+SOURCE_URL="ftp://ftp.gnome.org/pub/GNOME/sources/atk/${VERSION%.*}/atk-$VERSION.tar.bz2"
+SOURCE_MD5SUM="805c6e3b076bedffccfd7e56e7026932"

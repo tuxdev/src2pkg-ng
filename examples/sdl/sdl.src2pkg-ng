@@ -12,89 +12,91 @@ BRIEF="Simple DirectMedia Layer library"
 DESC="This is the Simple DirectMedia Layer, a generic API that provides low level access to audio, keyboard, mouse, joystick, 3D hardware via OpenGL, and 2D framebuffer across multiple platforms."
 HOMEPAGE="http://www.libsdl.org/"
 
-fetch_src "http://www.libsdl.org/release/SDL-$VERSION.tar.gz"
-SRC="$RET_SOURCE"
-check_md5sum "$RET_SOURCE" "e52086d1b508fa0b76c52ee30b55bec4"
+main() {
+   fetch_src "http://www.libsdl.org/release/SDL-$VERSION.tar.gz"
+   SRC="$RET_SOURCE"
+   check_md5sum "$SRC" "e52086d1b508fa0b76c52ee30b55bec4"
 
-fetch_src "http://www.libsdl.org/projects/SDL_image/release/SDL_image-$IMAGE_VER.tar.gz"
-IMAGE_SRC="$RET_SOURCE"
-check_md5sum "$RET_SOURCE" "6c06584b31559e2b59f2b982d0d1f628"
+   fetch_src "http://www.libsdl.org/projects/SDL_image/release/SDL_image-$IMAGE_VER.tar.gz"
+   IMAGE_SRC="$RET_SOURCE"
+   check_md5sum "$IMAGE_SRC" "6c06584b31559e2b59f2b982d0d1f628"
 
-fetch_src "http://www.libsdl.org/projects/SDL_mixer/release/SDL_mixer-$MIXER_VER.tar.gz"
-MIXER_SRC="$RET_SOURCE"
-check_md5sum "$RET_SOURCE" "65ada3d997fe85109191a5fb083f248c"
+   fetch_src "http://www.libsdl.org/projects/SDL_mixer/release/SDL_mixer-$MIXER_VER.tar.gz"
+   MIXER_SRC="$RET_SOURCE"
+   check_md5sum "$MIXER_SRC" "65ada3d997fe85109191a5fb083f248c"
 
-fetch_src "http://www.libsdl.org/projects/SDL_net/release/SDL_net-$NET_VER.tar.gz"
-NET_SRC="$RET_SOURCE"
-check_md5sum "$RET_SOURCE" "6bd4662d1423810f3140d4da21b6d912"
+   fetch_src "http://www.libsdl.org/projects/SDL_net/release/SDL_net-$NET_VER.tar.gz"
+   NET_SRC="$RET_SOURCE"
+   check_md5sum "$NET_SRC" "6bd4662d1423810f3140d4da21b6d912"
 
-fetch_src "http://www.libsdl.org/projects/SDL_ttf/release/SDL_ttf-$TTF_VER.tar.gz"
-TTF_SRC="$RET_SOURCE"
-check_md5sum "$RET_SOURCE" "6dd5a85e4924689a35a5fb1cb3336156"
+   fetch_src "http://www.libsdl.org/projects/SDL_ttf/release/SDL_ttf-$TTF_VER.tar.gz"
+   TTF_SRC="$RET_SOURCE"
+   check_md5sum "$TTF_SRC" "6dd5a85e4924689a35a5fb1cb3336156"
 
-make_dir src
-SRC_DIR="$RET_DIR"
-unpack_archive "$SRC" "$SRC_DIR"
-fixup_src "$SRC_DIR"
+   make_dir src
+   SRC_DIR="$RET_DIR"
+   unpack_archive "$SRC" "$SRC_DIR"
+   fixup_src "$SRC_DIR"
 
-configure_src auto "$SRC_DIR" --disable-arts --disable-esd --enable-shared=yes --enable-static=no --disable-x11-shared
-compile_src auto "$SRC_DIR"
-make_dir pkg
-PKG_DIR="$RET_DIR"
-safe_install auto "$SRC_DIR" "$PKG_DIR"
-install_extra "$SRC_DIR" "$PKG_DIR"
-mkdir -p "$PKG_DIR/$DOC_DIR/html"
-cp -a "$SRC_DIR/docs/index.html" "$PKG_DIR/$DOC_DIR"
-cp -a $SRC_DIR/docs/html/*.html "$PKG_DIR/$DOC_DIR/html"
-push_back DEPS_DIRS "$PKG_DIR"
+   configure_src auto "$SRC_DIR" --disable-arts --disable-esd --enable-shared=yes --enable-static=no --disable-x11-shared
+   compile_src auto "$SRC_DIR"
+   make_dir pkg
+   PKG_DIR="$RET_DIR"
+   safe_install auto "$SRC_DIR" "$PKG_DIR"
+   install_extra "$SRC_DIR" "$PKG_DIR"
+   mkdir -p "$PKG_DIR/$DOC_DIR/html"
+   cp -a "$SRC_DIR/docs/index.html" "$PKG_DIR/$DOC_DIR"
+   cp -a $SRC_DIR/docs/html/*.html "$PKG_DIR/$DOC_DIR/html"
+   push_back DEPS_DIRS "$PKG_DIR"
 
-make_dir image-src
-IMAGE_SRC_DIR="$RET_DIR"
-unpack_archive "$IMAGE_SRC" "$IMAGE_SRC_DIR"
-fixup_src "$IMAGE_SRC_DIR"
+   make_dir image-src
+   IMAGE_SRC_DIR="$RET_DIR"
+   unpack_archive "$IMAGE_SRC" "$IMAGE_SRC_DIR"
+   fixup_src "$IMAGE_SRC_DIR"
 
-configure_src auto "$IMAGE_SRC_DIR" --enable-shared=yes --enable-static=no --enable-jpg-shared=no --enable-png-shared=no --enable-tif-shared=no
-compile_src auto "$IMAGE_SRC_DIR"
-safe_install auto "$IMAGE_SRC_DIR" "$PKG_DIR"
-cp -a "$IMAGE_SRC_DIR/CHANGES" "$PKG_DIR/$DOC_DIR/CHANGES.SDL_image"
-cp -a "$IMAGE_SRC_DIR/COPYING" "$PKG_DIR/$DOC_DIR/COPYING.SDL_image"
-cp -a "$IMAGE_SRC_DIR/README" "$PKG_DIR/$DOC_DIR/README.SDL_image"
+   configure_src auto "$IMAGE_SRC_DIR" --enable-shared=yes --enable-static=no --enable-jpg-shared=no --enable-png-shared=no --enable-tif-shared=no
+   compile_src auto "$IMAGE_SRC_DIR"
+   safe_install auto "$IMAGE_SRC_DIR" "$PKG_DIR"
+   cp -a "$IMAGE_SRC_DIR/CHANGES" "$PKG_DIR/$DOC_DIR/CHANGES.SDL_image"
+   cp -a "$IMAGE_SRC_DIR/COPYING" "$PKG_DIR/$DOC_DIR/COPYING.SDL_image"
+   cp -a "$IMAGE_SRC_DIR/README" "$PKG_DIR/$DOC_DIR/README.SDL_image"
 
-make_dir mixer-src
-MIXER_SRC_DIR="$RET_DIR"
-unpack_archive "$MIXER_SRC" "$MIXER_SRC_DIR"
-fixup_src "$MIXER_SRC_DIR"
+   make_dir mixer-src
+   MIXER_SRC_DIR="$RET_DIR"
+   unpack_archive "$MIXER_SRC" "$MIXER_SRC_DIR"
+   fixup_src "$MIXER_SRC_DIR"
 
-configure_src auto "$MIXER_SRC_DIR" --enable-shared=yes --enable-static=no
-compile_src auto "$MIXER_SRC_DIR"
-safe_install auto "$MIXER_SRC_DIR" "$PKG_DIR"
-cp -a "$MIXER_SRC_DIR/CHANGES" "$PKG_DIR/$DOC_DIR/CHANGES.SDL_mixer"
-cp -a "$MIXER_SRC_DIR/COPYING" "$PKG_DIR/$DOC_DIR/COPYING.SDL_mixer"
-cp -a "$MIXER_SRC_DIR/README" "$PKG_DIR/$DOC_DIR/README.SDL_mixer"
+   configure_src auto "$MIXER_SRC_DIR" --enable-shared=yes --enable-static=no
+   compile_src auto "$MIXER_SRC_DIR"
+   safe_install auto "$MIXER_SRC_DIR" "$PKG_DIR"
+   cp -a "$MIXER_SRC_DIR/CHANGES" "$PKG_DIR/$DOC_DIR/CHANGES.SDL_mixer"
+   cp -a "$MIXER_SRC_DIR/COPYING" "$PKG_DIR/$DOC_DIR/COPYING.SDL_mixer"
+   cp -a "$MIXER_SRC_DIR/README" "$PKG_DIR/$DOC_DIR/README.SDL_mixer"
 
-make_dir net-src
-NET_SRC_DIR="$RET_DIR"
-unpack_archive "$NET_SRC" "$NET_SRC_DIR"
-fixup_src "$NET_SRC_DIR"
+   make_dir net-src
+   NET_SRC_DIR="$RET_DIR"
+   unpack_archive "$NET_SRC" "$NET_SRC_DIR"
+   fixup_src "$NET_SRC_DIR"
 
-configure_src auto "$NET_SRC_DIR" --enable-shared=yes --enable-static=no
-compile_src auto "$NET_SRC_DIR"
-safe_install auto "$NET_SRC_DIR" "$PKG_DIR"
-cp -a "$NET_SRC_DIR/CHANGES" "$PKG_DIR/$DOC_DIR/CHANGES.SDL_net"
-cp -a "$NET_SRC_DIR/COPYING" "$PKG_DIR/$DOC_DIR/COPYING.SDL_net"
-cp -a "$NET_SRC_DIR/README" "$PKG_DIR/$DOC_DIR/README.SDL_net"
+   configure_src auto "$NET_SRC_DIR" --enable-shared=yes --enable-static=no
+   compile_src auto "$NET_SRC_DIR"
+   safe_install auto "$NET_SRC_DIR" "$PKG_DIR"
+   cp -a "$NET_SRC_DIR/CHANGES" "$PKG_DIR/$DOC_DIR/CHANGES.SDL_net"
+   cp -a "$NET_SRC_DIR/COPYING" "$PKG_DIR/$DOC_DIR/COPYING.SDL_net"
+   cp -a "$NET_SRC_DIR/README" "$PKG_DIR/$DOC_DIR/README.SDL_net"
 
-make_dir ttf-src
-TTF_SRC_DIR="$RET_DIR"
-unpack_archive "$TTF_SRC" "$TTF_SRC_DIR"
-fixup_src "$TTF_SRC_DIR"
+   make_dir ttf-src
+   TTF_SRC_DIR="$RET_DIR"
+   unpack_archive "$TTF_SRC" "$TTF_SRC_DIR"
+   fixup_src "$TTF_SRC_DIR"
 
-configure_src auto "$TTF_SRC_DIR" --enable-shared=yes --enable-static=no
-compile_src auto "$TTF_SRC_DIR"
-safe_install auto "$TTF_SRC_DIR" "$PKG_DIR"
-cp -a "$TTF_SRC_DIR/CHANGES" "$PKG_DIR/$DOC_DIR/CHANGES.SDL_ttf"
-cp -a "$TTF_SRC_DIR/COPYING" "$PKG_DIR/$DOC_DIR/COPYING.SDL_ttf"
-cp -a "$TTF_SRC_DIR/README" "$PKG_DIR/$DOC_DIR/README.SDL_ttf"
+   configure_src auto "$TTF_SRC_DIR" --enable-shared=yes --enable-static=no
+   compile_src auto "$TTF_SRC_DIR"
+   safe_install auto "$TTF_SRC_DIR" "$PKG_DIR"
+   cp -a "$TTF_SRC_DIR/CHANGES" "$PKG_DIR/$DOC_DIR/CHANGES.SDL_ttf"
+   cp -a "$TTF_SRC_DIR/COPYING" "$PKG_DIR/$DOC_DIR/COPYING.SDL_ttf"
+   cp -a "$TTF_SRC_DIR/README" "$PKG_DIR/$DOC_DIR/README.SDL_ttf"
 
-fixup_pkg "$PKG_DIR"
-make_pkg "$PKG_DIR"
+   fixup_pkg "$PKG_DIR"
+   make_pkg "$PKG_DIR"
+}

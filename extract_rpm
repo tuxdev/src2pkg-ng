@@ -4,6 +4,8 @@ NAME="$(basename "$1" | cut -d "-" -f 1)"
 VERSION="$(basename "$1" | cut -d "-" -f 1)"
 BUILD="$(basename "$1" | cut -d "-" -f 1)"
 
-rm -rf "$(basename "$1" ".rpm")"
-mkdir "$(basename "$1" ".rpm")"
-unpack_archive "$1" "$(basename "$1" ".rpm")"
+main() {
+   rm -rf "$(basename "$1" ".rpm")"
+   mkdir "$(basename "$1" ".rpm")"
+   unpack_archive "$1" "$(basename "$1" ".rpm")"
+}

@@ -8,21 +8,5 @@ BRIEF="Type 1 font utilities"
 DESC="Six free UNIX/Windows command-line tools for dealing with Type 1 fonts."
 HOMEPAGE="http://www.lcdf.org/type/#t1utils"
 
-fetch_src "http://www.lcdf.org/type/t1utils-$VERSION.tar.gz"
-SRC="$RET_SOURCE"
-check_md5sum "$RET_SOURCE" "20e4cd3ffe81f01eff02a5e2320d95b7"
-
-make_dir src
-SRC_DIR="$RET_DIR"
-unpack_archive "$SRC" "$SRC_DIR"
-fixup_src "$SRC_DIR"
-
-configure_src auto "$SRC_DIR"
-compile_src auto "$SRC_DIR"
-make_dir pkg
-PKG_DIR="$RET_DIR"
-safe_install auto "$SRC_DIR" "$PKG_DIR"
-install_extra "$SRC_DIR" "$PKG_DIR"
-
-fixup_pkg "$PKG_DIR"
-make_pkg "$PKG_DIR"
+SOURCE_URL="http://www.lcdf.org/type/t1utils-$VERSION.tar.gz"
+SOURCE_MD5SUM="20e4cd3ffe81f01eff02a5e2320d95b7"

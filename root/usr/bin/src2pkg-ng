@@ -39,6 +39,11 @@ export TEXTDOMAIN="src2pkg-ng"
 SRC2PKG_NG_DIR="${SRC2PKG_NG_DIR:-"/usr/libexec/src2pkg-ng"}"
 SRC2PKG_NG_ETC="${SRC2PKG_NG_ETC:-"/etc/src2pkg-ng"}"
 
+if [[ "$(id -u)" != "$(id -ru)" ]] || [[ "$(id -g)" != "$(id -rg)" ]] ; then
+   tprintf $"@error{Error!}: Running src2pkg-ng under SUID or SGID is extremely dangerous\n"
+   exit 1
+fi
+
 while getopts :D: opt ; do
    case $opt in
       D)
@@ -55,16 +60,35 @@ unset opt
 shift $(( OPTIND - 1 ))
 SRC2PKG_NG_SCRIPT="$1"
 shift 1
-SCRIPT_DIR="$(dirname "$SRC2PKG_NG_SCRIPT")"
+SCRIPT_DIR="$(dirname "$0")"
 if [[ "$SCRIPT_DIR" = /* ]] ; then
    SCRIPT_DIR="$(pwd)/$SCRIPT_DIR"
 fi
 
-eval "$(grep -h "NAME=" "$SRC2PKG_NG_SCRIPT")"
-eval "$(grep -h "VERSION=" "$SRC2PKG_NG_SCRIPT")"
-eval "$(grep -h "BUILD=" "$SRC2PKG_NG_SCRIPT")"
-
 source "$SRC2PKG_NG_DIR/bash_utils"
+
+main() {
+   fetch_src "$SOURCE_URL"
+   SRC="$RET_SOURCE"
+   check_md5sum "$SRC" "$SOURCE_MD5SUM"
+
+   make_dir src
+   SRC_DIR="$RET_DIR"
+   unpack_archive "$SRC" "$SRC_DIR"
+   fixup_src "$SRC_DIR"
+
+   configure_src auto "$SRC_DIR"
+   compile_src auto "$SRC_DIR"
+   make_dir pkg
+   PKG_DIR="$RET_DIR"
+   safe_install auto "$SRC_DIR" "$PKG_DIR"
+   install_extra "$SRC_DIR" "$PKG_DIR"
+
+   fixup_pkg "$PKG_DIR"
+   make_pkg "$PKG_DIR"
+}
+
+source "$SRC2PKG_NG_SCRIPT"
 
 load_conf() {
    local conf="$1"
@@ -92,11 +116,6 @@ if [[ -r "$HOME/.src2pkg-ng.conf" ]] ; then
 fi
 
 unset -f load_conf
-
-if [[ "$(id -u)" != "$(id -ru)" ]] || [[ "$(id -g)" != "$(id -rg)" ]] ; then
-   tprintf $"@error{Error!}: Running src2pkg-ng under SUID or SGID is extremely dangerous\n"
-   exit 1
-fi
 
 if [[ -z "${ARCH:-""}" ]] ; then
    case "$PKG_STYLE" in
@@ -200,6 +219,6 @@ source "$SRC2PKG_NG_DIR/create_pkg"
 
 set_pkg_policy_$PKG_POLICY
 
-source "$SRC2PKG_NG_SCRIPT" "$@"
+main "$@"
 
 cleanup
