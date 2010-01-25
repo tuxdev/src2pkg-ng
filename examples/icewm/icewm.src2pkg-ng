@@ -1,7 +1,7 @@
 #!/usr/bin/env src2pkg-ng
 
 NAME="icewm"
-VERSION="1.3.5"
+VERSION="1.3.6"
 BUILD="1"
 
 BRIEF="Fast and small X11 window manager"
@@ -12,7 +12,7 @@ main() {
    fetch_resources "file://examples/icewm"
    fetch_src "http://downloads.sourceforge.net/icewm/icewm-$VERSION.tar.gz"
    SRC="$RET_SOURCE"
-   check_md5sum "$SRC" "ab0993ad222b84cb42a78c97ea065eec"
+   check_md5sum "$SRC" "65a7ddb0fb3f60abea4af52184382570"
 
    make_dir src
    SRC_DIR="$RET_DIR"
