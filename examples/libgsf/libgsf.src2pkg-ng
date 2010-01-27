@@ -9,4 +9,4 @@ DESC="libgsf aims to provide an efficient extensible I/O abstraction for dealing
 #HOMEPAGE="http://ftp.gnome.org/pub/GNOME/sources/libgsf/"
 
 SOURCE_URL="http://ftp.gnome.org/pub/gnome/sources/libgsf/${VERSION%.*}/libgsf-$VERSION.tar.bz2"
-SOURCE_MD5SUM="8478d83fda0b6e57f36550c11a693ee1" 
+SOURCE_MD5SUM="8478d83fda0b6e57f36550c11a693ee1"

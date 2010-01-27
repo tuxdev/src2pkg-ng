@@ -1,0 +1,12 @@
+#!/usr/bin/env src2pkg-ng
+
+NAME="glibmm"
+VERSION="2.23.1"
+BUILD="1"
+
+BRIEF="C++ bindings for glib"
+DESC="glibmm is a set of C++ bindings for glib, including cross-platform APIs such as a std::string-like UTF8 string class, string utility methods, such as a text encoding converter API, file access, and threads."
+HOMEPAGE="http://www.gtkmm.org/"
+
+SOURCE_URL="http://ftp.gnome.org/pub/gnome/sources/glibmm/${VERSION%.*}/glibmm-$VERSION.tar.bz2"
+SOURCE_MD5SUM="5a03eb43498aff48c6307899009502bc"

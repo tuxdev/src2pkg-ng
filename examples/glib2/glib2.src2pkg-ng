@@ -9,4 +9,4 @@ DESC="GLib is a library which includes support routines for C such as lists, tre
 HOMEPAGE="http://www.gtk.org/"
 
 SOURCE_URL="ftp://ftp.gtk.org/pub/glib/${VERSION%.*}/glib-$VERSION.tar.bz2"
-SOURCE_MD5SUM="fb637f6122690254097d0b6d470f6ed3" 
+SOURCE_MD5SUM="fb637f6122690254097d0b6d470f6ed3"

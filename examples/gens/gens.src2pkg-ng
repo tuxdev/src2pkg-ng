@@ -9,4 +9,4 @@ DESC="Gens is a win32/unix Sega Genesis / Sega CD / Sega 32X emulator."
 HOMEPAGE="http://sourceforge.net/projects/gens/"
 
 SOURCE_URL="http://downloads.sourceforge.net/gens/Gens Source Code/Gens $VERSION/gens-$VERSION.tar.gz"
-SOURCE_MD5SUM="1496a49be056d65bf76b52de62e932d7" 
+SOURCE_MD5SUM="1496a49be056d65bf76b52de62e932d7"

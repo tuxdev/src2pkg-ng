@@ -1,0 +1,12 @@
+#!/usr/bin/env src2pkg-ng
+
+NAME="gtkmm"
+VERSION="2.19.2"
+BUILD="1"
+
+BRIEF="C++ interface for GTK+"
+DESC="gtkmm is the official C++ interface for the popular GUI library GTK+. Highlights include typesafe callbacks, and a comprehensive set of widgets that are easily extensible via inheritance. You can create user interfaces either in code or with the Glade User Interface designer, using libglademm. There's extensive documentation, including API reference and a tutorial."
+HOMEPAGE="http://www.gtkmm.org/"
+
+SOURCE_URL="http://ftp.gnome.org/pub/gnome/sources/gtkmm/${VERSION%.*}/gtkmm-$VERSION.tar.bz2"
+SOURCE_MD5SUM="df82d044dab676dece463a17fc59756d"

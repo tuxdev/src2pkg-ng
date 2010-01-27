@@ -1,0 +1,29 @@
+#!/usr/bin/env src2pkg-ng
+
+NAME="mangler"
+VERSION="r559"
+BUILD="1"
+
+BRIEF="Ventrilo client"
+DESC="Mangler is an open source VOIP client capable of connecting to Ventrilo 3.x servers. It is capable of performing almost all standard user functionality found in a Windows Ventrilo client. Mangler is developed and maintained by Eric Kilfoil and Daniel Sloof."
+HOMEPAGE="http://www.mangler.org/"
+
+main() {
+   make_snapshot "mangler-$VERSION" svn "http://svn.mangler.org/mangler/trunk/"
+   SRC="$RET_SNAPSHOT"
+
+   make_dir src
+   SRC_DIR="$RET_DIR"
+   unpack_archive "$SRC" "$SRC_DIR"
+   fixup_src "$SRC_DIR"
+
+   configure_src auto "$SRC_DIR"
+   compile_src auto "$SRC_DIR"
+   make_dir pkg
+   PKG_DIR="$RET_DIR"
+   safe_install auto "$SRC_DIR" "$PKG_DIR"
+   install_extra "$SRC_DIR" "$PKG_DIR"
+
+   fixup_pkg "$PKG_DIR"
+   make_pkg "$PKG_DIR"
+}

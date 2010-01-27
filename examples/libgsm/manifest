@@ -1,0 +1,3 @@
+6c285ee164e874dead3bc86399444134  patches/gsm-1.0.12-64bit.patch
+7c45a8bbbc2031c74c67c34bcf037c56  patches/gsm-1.0.12-memcpy.patch
+02fd982ad71fffbf42aec1f4815a19cd  patches/gsm-1.0.13-shared.patch

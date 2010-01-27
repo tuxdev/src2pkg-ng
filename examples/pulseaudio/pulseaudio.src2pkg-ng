@@ -1,0 +1,12 @@
+#!/usr/bin/env src2pkg-ng
+
+NAME="pulseaudio"
+VERSION="0.9.14"
+BUILD="1"
+
+BRIEF="sound server"
+DESC="pulseaudio is a networked sound server for Linux and other Unix like operating systems and Microsoft Windows. It is intended to be an improved drop-in replacement for the Enlightened Sound Daemon (ESOUND)."
+HOMEPAGE="http://www.pulseaudio.org/"
+
+SOURCE_URL="http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-$VERSION.tar.gz"
+SOURCE_MD5SUM="0ed1115222d1d8c64cc14961cccb2eb0"

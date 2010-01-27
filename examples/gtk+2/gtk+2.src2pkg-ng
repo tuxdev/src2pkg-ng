@@ -19,7 +19,7 @@ main() {
    unpack_archive "$SRC" "$SRC_DIR"
    fixup_src "$SRC_DIR"
 
-   configure_src auto "$SRC_DIR"
+   configure_src auto "$SRC_DIR" --with-xinput=yes
    compile_src auto "$SRC_DIR"
    make_dir pkg
    PKG_DIR="$RET_DIR"

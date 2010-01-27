@@ -1,0 +1,12 @@
+#!/usr/bin/env src2pkg-ng
+
+NAME="speex"
+VERSION="1.2rc1"
+BUILD="1"
+
+BRIEF="audio codec for speech"
+DESC="Speex is an Open Source/Free Software patent-free audio compression format designed for speech. The Speex Project aims to lower the barrier of entry for voice applications by providing a free alternative to expensive proprietary speech codecs. Moreover, Speex is well-adapted to Internet applications and provides useful features that are not present in most other codecs. Finally, Speex is part of the GNU  Project and is available under the revised BSD license."
+HOMEPAGE="http://www.speex.org/"
+
+SOURCE_URL="http://downloads.xiph.org/releases/speex/speex-$VERSION.tar.gz"
+SOURCE_MD5SUM="c4438b22c08e5811ff10e2b06ee9b9ae"

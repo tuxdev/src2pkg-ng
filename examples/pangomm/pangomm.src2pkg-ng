@@ -1,0 +1,12 @@
+#!/usr/bin/env src2pkg-ng
+
+NAME="pangomm"
+VERSION="2.26.0"
+BUILD="1"
+
+BRIEF="C++ API for Pango"
+DESC="Pangomm is a C++ API for Pango."
+HOMEPAGE="http://www.gtkmm.org/"
+
+SOURCE_URL="http://ftp.gnome.org/pub/gnome/sources/pangomm/${VERSION%.*}/pangomm-$VERSION.tar.bz2"
+SOURCE_MD5SUM="37f54dc8e6cb73ed923b22f313352156"

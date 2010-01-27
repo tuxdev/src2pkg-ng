@@ -1,0 +1,12 @@
+#!/usr/bin/env src2pkg-ng
+
+NAME="cairomm"
+VERSION="1.8.4"
+BUILD="1"
+
+BRIEF="C++ wrapper for the cairo graphics library"
+DESC="cairomm is a C++ wrapper for the cairo graphics library. It offers all the power of cairo with an interface familiar to C++ developers, including use of the Standard Template Library where it makes sense."
+HOMEPAGE="http://cairographics.org/cairomm/"
+
+SOURCE_URL="http://cairographics.org/releases/cairomm-$VERSION.tar.gz"
+SOURCE_MD5SUM="559afbc47484ba3fad265e38a3dafe90"

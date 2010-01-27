@@ -1,0 +1,35 @@
+#!/usr/bin/env src2pkg-ng
+
+NAME="libgsm"
+VERSION="1.0.13"
+BUILD="1"
+
+BRIEF="lossy speech compression library"
+DESC="libgsm is an implementation of the European GSM 06.10 provisional standard for full-rate speech transcoding, prI-ETS 300 036, which uses RPE/LTP (residual pulse excitation/long term prediction) coding at 13 kbit/s."
+#HOMEPAGE=""
+
+main() {
+   fetch_resources "file://examples/libgsm"
+   fetch_src "http://www.mangler.org/downloads/libgsm-$VERSION.tar.gz"
+   SRC="$RET_SOURCE"
+   check_md5sum "$SRC" "c1ba392ce61dc4aff1c29ea4e92f6df4"
+
+   make_dir src
+   SRC_DIR="$RET_DIR"
+   unpack_archive "$SRC" "$SRC_DIR"
+   fixup_src "$SRC_DIR"
+
+   compile_src auto "$SRC_DIR" CCINC="$ARCH_FLAGS"
+   make_dir pkg
+   PKG_DIR="$RET_DIR"
+   mkdir -p "$PKG_DIR/$BIN_DIR"
+   mkdir -p "$PKG_DIR/$LIB_DIR"
+   mkdir -p "$PKG_DIR/$INCLUDE_DIR/gsm"
+   mkdir -p "$PKG_DIR/$MAN_DIR/man1"
+   mkdir -p "$PKG_DIR/$MAN_DIR/man3"
+   safe_install auto "$SRC_DIR" "$PKG_DIR" install INSTALL_ROOT="/$PRE_FIX" GSM_INSTALL_LIB="/$LIB_DIR" GSM_INSTALL_INC="/$INCLUDE_DIR/gsm" GSM_INSTALL_MAN="/$MAN_DIR/man3" TOAST_INSTALL_MAN="/$MAN_DIR/man1"
+   install_extra "$SRC_DIR" "$PKG_DIR"
+
+   fixup_pkg "$PKG_DIR"
+   make_pkg "$PKG_DIR"
+}
