@@ -310,7 +310,7 @@ apply_patch() {
    tprintf "@summary{Applying} %s\n" "${patch##*/}"
    declare level=""
    for level in 1 0 2 3 4 5 ; do
-      IFS=$' \n\t'
+      unset IFS
       set +e
       case "$patch" in
          *.diff | *.patch)

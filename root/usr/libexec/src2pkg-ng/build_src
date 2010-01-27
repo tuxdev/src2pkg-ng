@@ -52,7 +52,7 @@ configure_src() {
       fi
       tprintf $"@summary{Configuring sources using}\n"
       echo " ${configure_cmd[@]}"
-      IFS=$' \n\t'
+      unset IFS
       set +eu
       CFLAGS="$ARCH_FLAGS" \
       CXXFLAGS="$ARCH_FLAGS" \
@@ -99,7 +99,7 @@ compile_src() {
       fi
       tprintf $"@summary{Compiling sources using}\n"
       echo " ${compile_cmd[@]}"
-      IFS=$' \n\t'
+      unset IFS
       set +eu
       CFLAGS="$ARCH_FLAGS" \
       CXXFLAGS="$ARCH_FLAGS" \
@@ -152,7 +152,7 @@ safe_install() {
       mkdir -p "$pkg_dir"
       tprintf $"@summary{Installing sources using}\n"
       echo " ${install_cmd[@]}"
-      IFS=$' \n\t'
+      unset IFS
       set +eu
       $SANDBOX -w "$pkg_dir" "${DEPS_DIRS[@]/#/-r}" -r "$SYSTEM_DIR" \
          -e /dev -e /proc -e /sys -e /tmp -e /var/tmp -e "$src_dir" \

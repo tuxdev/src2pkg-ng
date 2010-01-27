@@ -199,7 +199,7 @@ strip_elf() {
    tprintf $"@summary{Stripping ELF files} - "
    declare file=""
    for file in $(find "$pkg_dir" -type f) ; do
-      IFS=$' \n\t'
+      unset IFS
       if [[ "$(dd if="$file" bs=1 count=4 2> /dev/null)" = $'\x7FELF' ]] ; then
          "${STRIP_CMD[@]}" "$file"
       elif [[ "$(head -n 1 "$file")" = "!<arch>" ]] ; then
