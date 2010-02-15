@@ -40,7 +40,7 @@ make_pkg_debian() {
    fi
    printf "2.0\n" > "$pkg_dir/metadata/debian-binary"
    mkdir -p "$pkg_dir/metadata/control"
-   (cd "$pkg_dir" && md5sum $(find * -type f)) > "$pkg_dir/metadata/control/md5sums"
+   (cd "$pkg_dir" && find ./* -type f -exec md5sum "{}" "+") > "$pkg_dir/metadata/control/md5sums"
    make_debian_control "$pkg_dir" "$pkg_name" "$pkg_dir/metadata/control/control"
    if ! tar --owner=root --group=root -c -z -C "$pkg_dir/metadata/control" -f "$pkg_dir/metadata/control.tar.gz" . ; then
       tprintf $"@error{Error!}: Creating Debian control tarball failed\n"

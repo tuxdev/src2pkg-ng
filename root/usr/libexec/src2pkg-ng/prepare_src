@@ -360,7 +360,7 @@ fixup_autotools() {
    find "$src_dir" -type f -name "install-sh" -exec cp -f "/$DATA_DIR/libtool/install-sh" "{}" ";"
    #find "$src_dir" -type f -name "ltmain.sh" -exec cp -f "/$DATA_DIR/libtool/ltmain.sh" "{}" ";"
    declare input=""
-   for input in $(find "$src_dir" -type f -name "configure.in" -o -name "configure.ac") ; do
+   while IFS="" read -r -d "" input ; do
       declare output="${input%.*}"
       declare regen_dir="$(dirname "$input")"
       declare do_regen=0
@@ -386,5 +386,5 @@ fixup_autotools() {
          fi
          tprintf $"@success{Done}\n"
       fi
-   done
+   done < <(find "$src_dir" -type f -name "configure.in" -o -name "configure.ac" -print0)
 }

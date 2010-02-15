@@ -111,7 +111,8 @@ fix_info() {
 
 compress_docs() {
    declare pkg_dir="$1"
-   declare mans=($(find "$pkg_dir/$MAN_DIR" -type f))
+   declare mans=()
+   IFS="" read -a -r -d "" mans < <(find "$pkg_dir/$MAN_DIR" -type f -print0)
    if (( ${#mans[@]} )) ; then
       tprintf $"@summary{Compressing man pages} - "
       declare man=""
@@ -139,7 +140,8 @@ compress_docs() {
       done
       tprintf $"@success{Done}\n"
    fi
-   declare infos=($(find "$pkg_dir/$INFO_DIR" -type f))
+   declare infos=()
+   IFS="" read -a -r -d "" infos < <(find "$pkg_dir/$INFO_DIR" -type f)
    if (( ${#infos[@]} )) ; then
       tprintf $"@summary{Compressing info pages} - "
       declare info=""
@@ -174,7 +176,7 @@ fix_noarch() {
    tprintf $"@summary{Checking if package is architecture independent} - "
    declare noarch=1
    declare file=""
-   for file in $(find "$pkg_dir/$BIN_DIR" -type f 2> /dev/null) $(find "$pkg_dir/$SBIN_DIR" -type f 2> /dev/null) $(find "$pkg_dir/$LIBEXEC_DIR" -type f 2> /dev/null) $(find "$pkg_dir/$LIB_DIR" -type f 2> /dev/null) $(find "$pkg_dir" -type f 2> /dev/null) ; do
+   while IFS="" read -r -d "" file ; do
       if [[ "$(dd if="$file" bs=1 count=4 2> /dev/null)" = $'\x7FELF' ]] ; then
          noarch=0
          break
@@ -185,7 +187,7 @@ fix_noarch() {
          noarch=0
          break
       fi
-   done
+   done < <(find "$pkg_dir" -type f -print0)
    if (( noarch )) ; then
       ARCH=noarch
       echo $"it is"
@@ -198,7 +200,7 @@ strip_elf() {
    declare pkg_dir="$1"
    tprintf $"@summary{Stripping ELF files} - "
    declare file=""
-   for file in $(find "$pkg_dir" -type f) ; do
+   while IFS="" read -r -d "" file ; do
       unset IFS
       if [[ "$(dd if="$file" bs=1 count=4 2> /dev/null)" = $'\x7FELF' ]] ; then
          "${STRIP_CMD[@]}" "$file"
@@ -206,7 +208,7 @@ strip_elf() {
          "${STRIP_CMD[@]}" "$file"
       fi
       IFS=$'\n'
-   done
+   done < <(find "$pkg_dir" -type f -print0)
    tprintf $"@success{Done}\n"
 }
 
@@ -257,7 +259,7 @@ fixup_pkg_perms() {
       fi
    done
    declare file=""
-   for file in $(find "$pkg_dir" -type f) ; do
+   while IFS="" read -r -d "" file ; do
       if [[ "$(dd if="$file" bs=1 count=4 2> /dev/null)" = $'\x7FELF' ]] ; then
          chmod 755 "$file"
       elif dd if="$file" bs=1 count=80 2> /dev/null | grep -Fq ".la - a libtool library file" ; then
@@ -265,7 +267,7 @@ fixup_pkg_perms() {
       elif [[ "$(head -n 1 "$file")" = "!<arch>" ]] ; then
          chmod 644 "$file"
       fi
-   done
+   done < <(find "$pkg_dir" -type f -print0)
    if [[ -d "$pkg_dir/$SYSCONF_DIR" ]] ; then
       find "$pkg_dir/$SYSCONF_DIR" -maxdepth 1 -type f -exec chmod "ogu-x" "{}" "+"
    fi

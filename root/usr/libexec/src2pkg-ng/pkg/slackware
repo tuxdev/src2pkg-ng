@@ -182,21 +182,21 @@ config() {
 }
 EOF
       declare conf=""
-      for conf in $(find "$pkg_dir/$SYSCONF_DIR" -type f); do
+      while IFS="" read -r -d "" conf ; do
          cat >> "$doinst_file" << EOF
 config "${conf#$pkg_dir/}.new"
 EOF
          mv "$conf" "$conf.new"
-      done
+      done < <(find "$pkg_dir/$SYSCONF_DIR" -type f -print0)
    fi
    declare link=""
-   for link in $(find "$pkg_dir" -type l) ; do
+   while IFS="" read -r -d "" link ; do
       cat >> "$doinst_file" << EOF
 ( cd "$(dirname ${link#$pkg_dir/})" ; rm -rf "${link##*/}" )
 ( cd "$(dirname ${link#$pkg_dir/})" ; ln -sf "$(readlink $link)" "${link##*/}" )
 EOF
       rm -f "$link"
-   done
+   done < <(find "$pkg_dir" -type l -print0)
    if [[ -f "$pkg_dir/$SYSCONF_DIR/rc.d/rc.$NAME.new" ]] ; then
       cat >> "$doinst_file" << EOF
 if grep -Fq "rc.$NAME" "/$SYSCONF_DIR/rc.d/rc.local" ; then
@@ -221,7 +221,7 @@ EOF
 fi
 EOF
    fi
-   if [[ -d "$pkg_dir/$DATA_DIR/applications" && $(find "$pkg_dir/$DATA_DIR/applications" -type f) ]] ; then
+   if [[ -d "$pkg_dir/$DATA_DIR/applications" && "$(find "$pkg_dir/$DATA_DIR/applications" -type f)" ]] ; then
       cat >> "$doinst_file" << EOF
 if [ -x "/$BIN_DIR/update-desktop-database" ] ; then
    /$BIN_DIR/update-desktop-database "/$DATA_DIR/applications" > /dev/null 2>&1
