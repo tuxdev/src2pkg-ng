@@ -37,7 +37,7 @@ configure_src() {
       tprintf "@summary{Sandbox self-check}: "
       declare warnings=""
       warnings="$($SANDBOX -c "${DEPS_DIRS[@]/#/-r}" -r "$SYSTEM_DIR" -e /dev -e /proc -e /sys -e /tmp -e /var/tmp -e "$src_dir" 2>&1)"
-      declare code=$?
+      declare code="$?"
       set -e
       if (( code == 0 )) ; then
          tprintf $"@success{Passed!}\n"
@@ -48,7 +48,7 @@ configure_src() {
          echo "$warnings"
       fi
       if (( code != 0 )) ; then
-         cleanup $code
+         cleanup "$code"
       fi
       tprintf $"@summary{Configuring sources using}\n"
       echo " ${configure_cmd[@]}"
@@ -59,14 +59,14 @@ configure_src() {
       $SANDBOX "${DEPS_DIRS[@]/#/-r}" -r "$SYSTEM_DIR" \
          -e /dev -e /proc -e /sys -e /tmp -e /var/tmp -e "$src_dir" \
          "$BASH" -c "cd \"$src_dir/$CONFIG_SUBDIR\" && \"\$@\"" "$BASH" "${configure_cmd[@]}" > "$src_dir/$NAME-configure.log" 2>&1
-      declare code=$?
+      declare code="$?"
       set -eu
       IFS=$'\n'
       if (( code == 0 )) ; then
          tprintf "@summary{Configuration} - @success{Successful!}!\n"
       else
          tprintf $"@error{Error!}: Configuring sources failed\n"
-         cleanup $code
+         cleanup "$code"
       fi
    else
       tprintf $"@warning{Warning!}: No configure command returned by handler\n"
@@ -84,7 +84,7 @@ compile_src() {
       tprintf "@summary{Sandbox self-check}: "
       declare warnings=""
       warnings="$($SANDBOX -c "${DEPS_DIRS[@]/#/-r}" -r "$SYSTEM_DIR" -e /dev -e /proc -e /sys -e /tmp -e /var/tmp -e "$src_dir" 2>&1)"
-      declare code=$?
+      declare code="$?"
       set -e
       if (( code == 0 )) ; then
          tprintf $"@success{Passed!}\n"
@@ -95,7 +95,7 @@ compile_src() {
          echo "$warnings"
       fi
       if (( code != 0 )) ; then
-         cleanup $code
+         cleanup "$code"
       fi
       tprintf $"@summary{Compiling sources using}\n"
       echo " ${compile_cmd[@]}"
@@ -106,14 +106,14 @@ compile_src() {
       $SANDBOX "${DEPS_DIRS[@]/#/-r}" -r "$SYSTEM_DIR" \
          -e /dev -e /proc -e /sys -e /tmp -e /var/tmp -e "$src_dir" \
          "$BASH" -c "cd \"$src_dir/$CONFIG_SUBDIR\" && \"\$@\"" "$BASH" "${compile_cmd[@]}" > "$src_dir/$NAME-compile.log" 2>&1
-      declare code=$?
+      declare code=$"?"
       set -eu
       IFS=$'\n'
       if (( code == 0 )) ; then
          tprintf "@summary{Compilation} - @success{Successful!}!\n"
       else
          tprintf $"@error{Error!}: Compiling sources failed\n"
-         cleanup $code
+         cleanup "$code"
       fi
    else
       tprintf $"@warning{Warning!}: No compile command returned by handler\n"
@@ -136,7 +136,7 @@ safe_install() {
       tprintf "@summary{Sandbox self-check}: "
       declare warnings=""
       warnings="$($SANDBOX -c -w "$pkg_dir" "${DEPS_DIRS[@]/#/-r}" -r "$SYSTEM_DIR" -e /dev -e /proc -e /sys -e /tmp -e /var/tmp -e "$src_dir" 2>&1)"
-      declare code=$?
+      declare code="$?"
       set -e
       if (( code == 0 )) ; then
          tprintf $"@success{Passed!}\n"
@@ -147,7 +147,7 @@ safe_install() {
          echo "$warnings"
       fi
       if (( code != 0 )) ; then
-         cleanup $code
+         cleanup "$code"
       fi
       mkdir -p "$pkg_dir"
       tprintf $"@summary{Installing sources using}\n"
@@ -157,14 +157,14 @@ safe_install() {
       $SANDBOX -w "$pkg_dir" "${DEPS_DIRS[@]/#/-r}" -r "$SYSTEM_DIR" \
          -e /dev -e /proc -e /sys -e /tmp -e /var/tmp -e "$src_dir" \
          "$BASH" -c "cd \"$src_dir/$CONFIG_SUBDIR\" && \"\$@\"" "$BASH" "${install_cmd[@]}" > "$src_dir/$NAME-install.log" 2>&1
-      declare code=$?
+      declare code="$?"
       set -eu
       IFS=$'\n'
       if (( code == 0 )) ; then
          tprintf "@summary{Installation} - @success{Successful!}!\n"
       else
          tprintf $"@error{Error!}: Installing sources failed\n"
-         cleanup $code
+         cleanup "$code"
       fi
    else
       tprintf $"@warning{Warning!}: No install command returned by handler\n"

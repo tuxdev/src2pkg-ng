@@ -60,7 +60,7 @@ read_string() {
    declare bin="$(dd if="$file" bs=1 count=64 skip=$offset 2> /dev/null | od -A n -t x1 | tr -d \$'\n *')"
    (( offset += 64 ))
    declare str=""
-   while [[ "${BIN:0:2}" != "00" ]] ; do
+   while [[ "${bin:0:2}" != "00" ]] ; do
       str="$str$(printf"\x${bin:0:2}")"
       bin="${bin:2}"
       if [[ ! "$bin" ]] ; then
@@ -85,15 +85,15 @@ read_string_array() {
    declare offset="$2"
    declare count="$3"
    declare array_var="$4"
-   unset $array_var
+   unset "$array_var"
    declare bin="$(dd if="$file" bs=1 count=64 skip=$offset 2> /dev/null | od -A n -t x1 | tr -d \$'\n *')"
    (( offset += 64 ))
    while (( count > 0 )) ; do
       declare str=""
-      while [[ "${BIN:0:2}" != "00" ]] ; do
+      while [[ "${bin:0:2}" != "00" ]] ; do
          str="$str$(printf "\x${bin:0:2}")"
          bin="${bin:2}"
-         if [[ ! "$BIN" ]] ; then
+         if [[ ! "$bin" ]] ; then
             bin="$(dd if="$file" bs=1 count=64 skip=$offset 2> /dev/null | od -A n -t x1 | tr -d \$'\n *')"
             (( offset += 64 ))
          fi
@@ -168,7 +168,7 @@ rpm_read_index() {
       declare data_offset=$(read_int32 "$file" $(( index_offset + 8 )))
       declare data_count=$(read_int32 "$file" $(( index_offset + 12 )))
       declare file_offset=$(( offset + 16 + index_entries * 16 + data_offset ))
-      eval "$index_var[$tag]=\"$type $file_offset $data_count\""
+      read "$index_var[$tag]" <<< "$type $file_offset $data_count"
       (( ++index ))
    done
    RET_END_OFFSET=$(( offset + 16 + index_entries * 16 + store_size ))

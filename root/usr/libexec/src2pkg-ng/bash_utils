@@ -50,13 +50,13 @@ get_color_code() {
          code="$code$(tput setaf 7)"
          ;;
    esac
-   echo "$code"
+   printf "%s\n" "$code"
 }
 
 make_color_tag() {
    declare tag="$1"
    declare color="$2"
-   eval "format_$tag() { echo \"\$(get_color_code \"$color\")\$1\$(tput \"sgr0\")\"; }"
+   eval "format_$tag() { printf \"%s\n\" \"\$(get_color_code \"$color\")\$1\$(tput \"sgr0\")\"; }"
 }
 
 tprintf() {
