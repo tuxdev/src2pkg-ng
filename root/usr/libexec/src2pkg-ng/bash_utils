@@ -94,7 +94,7 @@ push_front() {
 pop_back() {
    declare array_var="$1"
    shift 1
-   eval "$array_var=(\"\${$array_var:0:\$(( ${#array_var[@]} - 1 ))}\")"
+   eval "$array_var=(\"\${$array_var:0:${#array_var[@]} - 1}\")"
 }
 
 pop_front() {
