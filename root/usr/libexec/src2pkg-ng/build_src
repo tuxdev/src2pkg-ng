@@ -254,9 +254,10 @@ install_docs() {
    declare docs=()
    declare pattern=""
    for pattern in "${patterns[@]}" ; do
-      declare files=()
-      IFS="" read -a -r -d "" files < <(find "$src_dir" -name "$pattern" -maxdepth 1 -type f -print0)
-      push_back docs "${files[@]}"
+      declare file=""
+      while IFS="" read -r -d "" file ; do
+         push_back docs "$file"
+      done < <(find "$src_dir" -name "$pattern" -maxdepth 1 -type f -print0)
    done
    mkdir -p "$pkg_dir/$DOC_DIR"
    if (( ${#docs[@]} )) ; then
@@ -274,7 +275,10 @@ install_pkgconfig() {
    declare pkg_dir="$2"
    if ! [[ "$(find "$pkg_dir" -name "*.pc" -type f)" ]] ; then
       declare pkgconfigs=()
-      IFS="" read -a -r -d "" pkgconfigs < <(find "$src_dir" -name "*.pc" ! -name "*uninstalled.pc" -type f -print0)
+      declare file=""
+      while IFS="" read -r -d "" file ; do
+         push_back pkgconfigs "$file"
+      done < <(find "$src_dir" -name "*.pc" ! -name "*uninstalled.pc" -type f -print0)
       shopt -s nullglob
       push_back pkgconfigs "$SOURCES_DIR"/*.pc
       shopt -u nullglob
@@ -297,7 +301,10 @@ install_xinit() {
    declare pkg_dir="$2"
    if ! [[ "$(find "$pkg_dir" -name "xinitrc.*" -type f)" ]] ; then
       declare xinits=()
-      IFS="" read -a -r -d "" xinits < <(find "$src_dir" -name "xinitrc.*" -print0)
+      declare file=""
+      while IFS="" read -r -d "" file ; do
+         push_back xinits "$file"
+      done < <(find "$src_dir" -name "xinitrc.*" -print0)
       shopt -s nullglob
       push_back xinits "$SOURCES_DIR"/xinitrc.*
       shopt -u nullglob
@@ -318,7 +325,10 @@ install_init() {
    declare pkg_dir="$2"
    if ! [[ "$(find "$pkg_dir" -name "rc.*" -type f)" ]] ; then
       declare inits=()
-      IFS="" read -a -r -d "" inits < <(find "$src_dir" -name "rc.*" -print0)
+      declare file=""
+      while IFS="" read -r -d "" file ; do
+         push_back inits "$file"
+      done < <(find "$src_dir" -name "rc.*" -print0)
       shopt -s nullglob
       push_back inits "$SOURCES_DIR"/rc.*
       shopt -u nullglob
@@ -364,17 +374,24 @@ install_icons() {
    # FIXME: Split each image type into it's own function
    # FIXME: Don't do anything if the installer already did something
    declare xpms=()
-   IFS="" read -a -r -d "" xpms < <(find "$src_dir" -name "$NAME.xpm" -print0)
+   declare file=""
+   while IFS="" read -r -d "" file ; do
+      push_back xpms "$file"
+   done < <(find "$src_dir" -name "$NAME.xpm" -print0)
    if [[ -f "$SOURCES_DIR/$NAME.xpm" ]] ; then
       push_back xpms "$SOURCES_DIR/$NAME.xpm"
    fi
    declare pngs=()
-   IFS="" read -a -r -d "" pngs < <(find "$src_dir" -name "$NAME.png" -print0)
+   while IFS="" read -r -d "" file ; do
+      push_back pngs "$file"
+   done < <(find "$src_dir" -name "$NAME.png" -print0)
    if [[ -f "$SOURCES_DIR/$NAME.png" ]] ; then
       push_back pngs "$SOURCES_DIR/$NAME.png"
    fi
    declare svgs=()
-   IFS="" read -a -r -d "" svgs < <(find "$src_dir" -name "$NAME.svg" -print0)
+   while IFS="" read -r -d "" file ; do
+      push_back svgs "$file"
+   done < <(find "$src_dir" -name "$NAME.svg" -print0)
    if [[ -f "$SOURCES_DIR/$NAME.svg" ]] ; then
       push_back svgs "$SOURCES_DIR/$NAME.svg"
    fi
@@ -405,7 +422,10 @@ install_desktop() {
    declare src_dir="$1"
    declare pkg_dir="$2"
    declare desktops=()
-   IFS="" read -a -r -d "" desktops < <(find "$src_dir" -name "*.desktop" -print0)
+   declare file=""
+   while IFS="" read -r -d "" file ; do
+      push_back desktops "$file"
+   done < <(find "$src_dir" -name "*.desktop" -print0)
    shopt -s nullglob
    push_back desktops "$SOURCES_DIR"/*.desktop
    shopt -u nullglob

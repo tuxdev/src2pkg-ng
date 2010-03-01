@@ -112,7 +112,10 @@ fix_info() {
 compress_docs() {
    declare pkg_dir="$1"
    declare mans=()
-   IFS="" read -a -r -d "" mans < <(find "$pkg_dir/$MAN_DIR" -type f -print0)
+   declare file=""
+   while IFS="" read -r -d "" file ; do
+      push_back mans "$file"
+   done < <(find "$pkg_dir/$MAN_DIR" -type f -print0)
    if (( ${#mans[@]} )) ; then
       tprintf $"@summary{Compressing man pages} - "
       declare man=""
@@ -141,7 +144,9 @@ compress_docs() {
       tprintf $"@success{Done}\n"
    fi
    declare infos=()
-   IFS="" read -a -r -d "" infos < <(find "$pkg_dir/$INFO_DIR" -type f)
+   while IFS="" read -r -d "" file ; do
+      push_back infos "$file"
+   done < <(find "$pkg_dir/$INFO_DIR" -type f -print0)
    if (( ${#infos[@]} )) ; then
       tprintf $"@summary{Compressing info pages} - "
       declare info=""
