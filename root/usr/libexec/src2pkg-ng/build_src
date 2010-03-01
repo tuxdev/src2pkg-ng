@@ -106,7 +106,7 @@ compile_src() {
       $SANDBOX "${DEPS_DIRS[@]/#/-r}" -r "$SYSTEM_DIR" \
          -e /dev -e /proc -e /sys -e /tmp -e /var/tmp -e "$src_dir" \
          "$BASH" -c "cd \"$src_dir/$CONFIG_SUBDIR\" && \"\$@\"" "$BASH" "${compile_cmd[@]}" > "$src_dir/$NAME-compile.log" 2>&1
-      declare code=$"?"
+      declare code="$?"
       set -eu
       IFS=$'\n'
       if (( code == 0 )) ; then
