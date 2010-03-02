@@ -2,7 +2,7 @@
 if [ -x /usr/bin/scim ] ; then
    /usr/bin/scim -d
 fi
-grep -h "Exec=" /etc/xdg/autostart/* | sed "s/Exec=//" |
-while read EXEC ; do
-   $EXEC &
+grep -h "Exec=" /etc/xdg/autostart/* |
+while read bin ; do
+   ${bin#Exec=} &
 done

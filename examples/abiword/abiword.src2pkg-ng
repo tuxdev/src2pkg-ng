@@ -1,7 +1,7 @@
 #!/usr/bin/env src2pkg-ng
 
 NAME="abiword"
-VERSION="2.8.1"
+VERSION="2.8.2"
 BUILD="1"
 
 BRIEF="AbiWord Personal"
@@ -12,12 +12,13 @@ INSTALL_PKGCONFIG=0
 INSTALL_DESKTOP=0
 
 main() {
+   fetch_resources "file://examples/abiword"
    fetch_src "http://www.abisource.com/downloads/abiword/$VERSION/source/abiword-$VERSION.tar.gz"
    SRC="$RET_SOURCE"
-   check_md5sum "$SRC" "284fe25289c160c3797b527a8aacad12"
+   check_md5sum "$SRC" "b44ffbebd5bd0f5f98f34dc8c688b4ed"
    fetch_src "http://www.abisource.com/downloads/abiword/$VERSION/source/abiword-docs-$VERSION.tar.gz"
    DOCS_SRC="$RET_SOURCE"
-   check_md5sum "$DOCS_SRC" "6a6d8260004280687b862e3b9777c338"
+   check_md5sum "$DOCS_SRC" "82f41f5d47f83d652acdb2ddaf145886"
 
    make_dir src
    SRC_DIR="$RET_DIR"

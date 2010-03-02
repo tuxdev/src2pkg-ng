@@ -1,7 +1,7 @@
 #!/usr/bin/env src2pkg-ng
 
 NAME="gnumeric"
-VERSION="1.9.15"
+VERSION="1.10.0"
 BUILD="1"
 
 BRIEF="A spreadsheet application"
@@ -9,4 +9,4 @@ DESC="The goal of Gnumeric is to be the best possible spreadsheet. We are not at
 HOMEPAGE="http://www.gnome.org/projects/gnumeric/"
 
 SOURCE_URL="http://ftp.acc.umu.se/pub/GNOME/sources/gnumeric/${VERSION%.*}/gnumeric-$VERSION.tar.bz2"
-SOURCE_MD5SUM="8e8e7fc7ddafdcfb27aabb094b2ae318"
+SOURCE_MD5SUM="45ca0c86d41288c1e70b25b74f5cd548"

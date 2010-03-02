@@ -1,7 +1,7 @@
 #!/usr/bin/env src2pkg-ng
 
 NAME="goffice"
-VERSION="0.7.15"
+VERSION="0.8.0"
 BUILD="1"
 
 BRIEF="Document utilities"
@@ -11,9 +11,10 @@ HOMEPAGE="http://ftp.gnome.org/pub/GNOME/sources/goffice/"
 AUTOPATCH=0
 
 main() {
+   fetch_resources "file://examples/goffice"
    fetch_src "http://ftp.acc.umu.se/pub/GNOME/sources/goffice/${VERSION%.*}/goffice-$VERSION.tar.bz2"
    SRC="$RET_SOURCE"
-   check_md5sum "$SRC" "eea7ca4a41e4fa8829ca5d93b1781279"
+   check_md5sum "$SRC" "afb3fcb152fb37ed433f30d1ed1e86e3"
 
    make_dir src
    SRC_DIR="$RET_DIR"
