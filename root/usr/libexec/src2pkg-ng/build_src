@@ -6,7 +6,7 @@
 # Copyright (C) 2009 Timothy Goya
 
 # src2pkg-ng is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License, version 2 as 
+# it under the terms of the GNU General Public License, version 2 as
 # published by the Free Software Foundation
 
 # src2pkg-ng is distributed in the hope that it will be useful,
@@ -439,7 +439,7 @@ install_desktop() {
                cp "$desktop" "$pkg_dir/$DATA_DIR/xsesssions"
             else
                mkdir -p "$pkg_dir/$DATA_DIR/applications"
-               cp "$desktop" "$pkg_dir/$DATA_DIR/applications" 
+               cp "$desktop" "$pkg_dir/$DATA_DIR/applications"
             fi
          done
          tprintf $"@success{Done}\n"
