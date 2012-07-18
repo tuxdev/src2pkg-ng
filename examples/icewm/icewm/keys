@@ -33,6 +33,6 @@ key "XF86AudioStop"         xmms -s
 key "XF86AudioNext"         xmms -f
 key "XF86AudioPrev"         xmms -r
 key "XF86HomePage"          firefox -noraise -remote openHomepage
-key "XF86Mail"	             firefox -noraise -remote openURL(http://www.gmail.com) 
+key "XF86Mail"	             firefox -noraise -remote openURL(http://www.gmail.com)
 key "XF86Search"            firefox -noraise -remote openURL(http://www.google.com/)
 key "XF86Eject"             eject

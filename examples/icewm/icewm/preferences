@@ -493,7 +493,7 @@ LockCommand="xlock -mode blank"
 #  Command to select and run a program
 # RunCommand=""
 
-#  
+#
 # OpenCommand=""
 
 #  Terminal emulator must accept -e option.
@@ -541,31 +541,31 @@ NetworkStatusDevice="wlan0 eth0"
 #  List of battery names (directories) in /proc/acpi/battery to ignore. Useful when more slots are built-in, but only one battery is used
 # AcpiIgnoreBatteries=""
 
-#  
+#
 # TitleFontName="-xftdummy-sans-bold-r-*-*-*-120-*-*-*-*-*-*"
 
-#  
+#
 # MenuFontName="-xftdummy-sans-bold-r-*-*-*-120-*-*-*-*-*-*"
 
-#  
+#
 # StatusFontName="-xftdummy-monospace-bold-r-*-*-*-120-*-*-*-*-*-*"
 
-#  
+#
 # FxFontName="-xftdummy-monospace-bold-r-*-*-*-120-*-*-*-*-*-*"
 
-#  
+#
 # QuickSwitchFontName="-xftdummy-monospace-bold-r-*-*-*-120-*-*-*-*-*-*"
 
-#  
+#
 # NormalButtonFontName="-xftdummy-sans-medium-r-*-*-*-120-*-*-*-*-*-*"
 
-#  
+#
 # ActiveButtonFontName="-xftdummy-sans-bold-r-*-*-*-120-*-*-*-*-*-*"
 
-#  
+#
 # NormalTaskBarFontName="-xftdummy-sans-medium-r-*-*-*-120-*-*-*-*-*-*"
 
-#  
+#
 # ActiveTaskBarFontName="-xftdummy-sans-bold-r-*-*-*-120-*-*-*-*-*-*"
 
 #  fallback: NormalButtonFontName
@@ -577,25 +577,25 @@ NetworkStatusDevice="wlan0 eth0"
 #  fallback: ActiveButtonFontName
 # ActiveWorkspaceFontName=""
 
-#  
+#
 # MinimizedWindowFontName="-xftdummy-sans-medium-r-*-*-*-120-*-*-*-*-*-*"
 
-#  
+#
 # ListBoxFontName="-xftdummy-sans-medium-r-*-*-*-120-*-*-*-*-*-*"
 
-#  
+#
 # ToolTipFontName="-xftdummy-sans-medium-r-*-*-*-120-*-*-*-*-*-*"
 
-#  
+#
 # ClockFontName="-xftdummy-monospace-medium-r-*-*-*-140-*-*-*-*-*-*"
 
-#  
+#
 # ApmFontName="-xftdummy-monospace-medium-r-*-*-*-140-*-*-*-*-*-*"
 
-#  
+#
 # InputFontName="-xftdummy-monospace-medium-r-*-*-*-140-*-*-*-*-*-*"
 
-#  
+#
 # LabelFontName="-xftdummy-sans-medium-r-*-*-*-140-*-*-*-*-*-*"
 
 #  Background of dialog windows
@@ -820,202 +820,202 @@ NetworkStatusDevice="wlan0 eth0"
 #  Idle (non) load on the network monitor, leave empty to force transparency
 # ColorNetIdle="rgb:00/00/00"
 
-#  
+#
 # KeyWinRaise="Alt+F1"
 
-#  
+#
 # KeyWinOccupyAll="Alt+F2"
 
-#  
+#
 # KeyWinLower="Alt+F3"
 
-#  
+#
 # KeyWinClose="Alt+F4"
 
-#  
+#
 # KeyWinRestore="Alt+F5"
 
-#  
+#
 # KeyWinPrev="Alt+Shift+F6"
 
-#  
+#
 # KeyWinNext="Alt+F6"
 
-#  
+#
 # KeyWinMove="Alt+F7"
 
-#  
+#
 # KeyWinSize="Alt+F8"
 
-#  
+#
 # KeyWinMinimize="Alt+F9"
 
-#  
+#
 # KeyWinMaximize="Alt+F10"
 
-#  
+#
 # KeyWinMaximizeVert="Alt+Shift+F10"
 
-#  
+#
 # KeyWinFullscreen="Alt+F11"
 
-#  
+#
 # KeyWinHide="Alt+Shift+F12"
 
-#  
+#
 # KeyWinRollup="Alt+F12"
 
-#  
+#
 # KeyWinMenu="Alt+Space"
 
-#  
+#
 # KeySysSwitchNext="Alt+Tab"
 
-#  
+#
 # KeySysSwitchLast="Alt+Shift+Tab"
 
-#  
+#
 # KeySysWinNext="Alt+Esc"
 
-#  
+#
 # KeySysWinPrev="Alt+Shift+Esc"
 
-#  
+#
 # KeySysWinMenu="Shift+Esc"
 
-#  
+#
 # KeySysDialog="Alt+Ctrl+Del"
 # KeySysDialog=""
 
-#  
+#
 # KeySysMenu="Ctrl+Esc"
 
-#  
+#
 # KeySysWindowList="Alt+Ctrl+Esc"
 
-#  
+#
 # KeySysWinListMenu=""
 
-#  
+#
 # KeySysAddressBar="Alt+Ctrl+Space"
 
-#  
+#
 # KeySysWorkspacePrev="Alt+Ctrl+Left"
 
-#  
+#
 # KeySysWorkspaceNext="Alt+Ctrl+Right"
 
-#  
+#
 # KeySysWorkspaceLast="Alt+Ctrl+Down"
 
-#  
+#
 # KeySysWorkspacePrevTakeWin="Alt+Ctrl+Shift+Left"
 
-#  
+#
 # KeySysWorkspaceNextTakeWin="Alt+Ctrl+Shift+Right"
 
-#  
+#
 # KeySysWorkspaceLastTakeWin="Alt+Ctrl+Shift+Down"
 
-#  
+#
 # KeySysWorkspace1="Alt+Ctrl+1"
 
-#  
+#
 # KeySysWorkspace2="Alt+Ctrl+2"
 
-#  
+#
 # KeySysWorkspace3="Alt+Ctrl+3"
 
-#  
+#
 # KeySysWorkspace4="Alt+Ctrl+4"
 
-#  
+#
 # KeySysWorkspace5="Alt+Ctrl+5"
 
-#  
+#
 # KeySysWorkspace6="Alt+Ctrl+6"
 
-#  
+#
 # KeySysWorkspace7="Alt+Ctrl+7"
 
-#  
+#
 # KeySysWorkspace8="Alt+Ctrl+8"
 
-#  
+#
 # KeySysWorkspace9="Alt+Ctrl+9"
 
-#  
+#
 # KeySysWorkspace10="Alt+Ctrl+0"
 
-#  
+#
 # KeySysWorkspace11="Alt+Ctrl+["
 
-#  
+#
 # KeySysWorkspace12="Alt+Ctrl+]"
 
-#  
+#
 # KeySysWorkspace1TakeWin="Alt+Ctrl+Shift+1"
 
-#  
+#
 # KeySysWorkspace2TakeWin="Alt+Ctrl+Shift+2"
 
-#  
+#
 # KeySysWorkspace3TakeWin="Alt+Ctrl+Shift+3"
 
-#  
+#
 # KeySysWorkspace4TakeWin="Alt+Ctrl+Shift+4"
 
-#  
+#
 # KeySysWorkspace5TakeWin="Alt+Ctrl+Shift+5"
 
-#  
+#
 # KeySysWorkspace6TakeWin="Alt+Ctrl+Shift+6"
 
-#  
+#
 # KeySysWorkspace7TakeWin="Alt+Ctrl+Shift+7"
 
-#  
+#
 # KeySysWorkspace8TakeWin="Alt+Ctrl+Shift+8"
 
-#  
+#
 # KeySysWorkspace9TakeWin="Alt+Ctrl+Shift+9"
 
-#  
+#
 # KeySysWorkspace10TakeWin="Alt+Ctrl+Shift+0"
 
-#  
+#
 # KeySysWorkspace11TakeWin="Alt+Ctrl+Shift+["
 
-#  
+#
 # KeySysWorkspace12TakeWin="Alt+Ctrl+Shift+]"
 
-#  
+#
 # KeySysTileVertical="Alt+Shift+F2"
 
-#  
+#
 # KeySysTileHorizontal="Alt+Shift+F3"
 
-#  
+#
 # KeySysCascade="Alt+Shift+F4"
 
-#  
+#
 # KeySysArrange="Alt+Shift+F5"
 
-#  
+#
 # KeySysArrangeIcons="Alt+Shift+F8"
 
-#  
+#
 # KeySysMinimizeAll="Alt+Shift+F9"
 
-#  
+#
 # KeySysHideAll="Alt+Shift+F11"
 
-#  
+#
 # KeySysUndoArrange="Alt+Shift+F7"
 
-#  
+#
 
-#  
+#
 
 WorkspaceNames=" 1 ", " 2 ", " 3 ", " 4 "
 
@@ -1044,5 +1044,5 @@ WorkspaceNames=" 1 ", " 2 ", " 3 ", " 4 "
 #  Image to announce for semi-transparent windows
 # DesktopTransparencyImage=""
 
-#  
+#
 

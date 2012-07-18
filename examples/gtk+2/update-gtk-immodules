@@ -18,9 +18,9 @@ esac
 # changing host from i386 to i686 and appending/dropping
 # the -gnu suffix, so try to match up the $host we got
 # with whats actually there.
-if ! test -d "/etc/gtk-2.0/$host" ; then 
+if ! test -d "/etc/gtk-2.0/$host" ; then
    case "$host" in
-      i?86*) 
+      i?86*)
          for d in /etc/gtk-2.0/i?86*; do
             if test -d "$d" ; then
                host="${d##*/}"
@@ -29,7 +29,7 @@ if ! test -d "/etc/gtk-2.0/$host" ; then
          done
          ;;
    esac
-fi 
+fi
 
 file="/etc/gtk-2.0/$host/gtk.immodules"
 
